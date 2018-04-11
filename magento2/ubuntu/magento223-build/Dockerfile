@@ -1,4 +1,4 @@
-FROM gaiterjones/phusion0922-apache2-php722:latest
+FROM gaiterjones/phusion1001-apache2-php7-1
 LABEL maintainer "paj@gaiterjones.com"
 LABEL description "Magento 2 PHP-APACHE Service"
 
