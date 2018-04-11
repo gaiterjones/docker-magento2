@@ -1,13 +1,13 @@
-# Docker Magento 2.1.12 Open Source (CE)
+# Docker Magento 2.2.3 Open Source (CE)
 
-Docker containers for Magento 2.1.x development including :
+Docker containers for Magento 2.2.x development including :
 
-  - PHP 7.0.22
+  - PHP 7.1
   - Apache 2.4
   - MYSQL 5.7
   - PhpMyAdmin
   - REDIS Session, System, FPC
-  - Varnish FPC
+  - Varnish 4 FPC
   - Scaleable php-apache service
 
 See http://blog.gaiterjones.com/docker-magento-2-development-deployment-php7-apache2-4-redis-varnish-scaleable/ for deployment instructions.
