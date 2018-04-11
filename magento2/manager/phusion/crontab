@@ -1,0 +1,2 @@
+*/1 * * * * root /usr/bin/php /home/dev/PAJ/www/Docker/Scale/Manager/cron.php silent scalemanager
+
