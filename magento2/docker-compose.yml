@@ -71,7 +71,7 @@ services:
         depends_on:
             - php-apache
     varnish:
-        build: ./varnish
+        build: ./varnish/varnish5
         hostname: varnish
         domainname: "${APPDOMAIN}"
         expose:
