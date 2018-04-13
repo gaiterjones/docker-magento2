@@ -17,7 +17,7 @@ backend apache_1 {
 	    .window    = 10;
 	    .threshold = 8;
 	}
-    
+
 }
 
 sub vcl_init {
@@ -37,6 +37,17 @@ acl purge {
 }
 
 sub vcl_recv {
+
+    # Bypass scale manager page
+    if (req.url ~ "/scale-manager") {
+        return (pass);
+    }
+
+    # Bypass Magento2FacebookStoreFront storefront
+    if (req.url ~ "/Magento2FacebookStoreFront") {
+        return (pass);
+    }
+
     if (req.method == "PURGE") {
         if (client.ip !~ purge) {
             return (synth(405, "Method not allowed"));
