@@ -2,49 +2,49 @@
 /**
  *  SCALE MANAGER VARNISH
  *
- *  Copyright (C) 2017
+ *  Copyright (C) 2018
  *
  *
  *  @who	   	PAJ
  *  @info   	paj@gaiterjones.com
  *  @license    blog.gaiterjones.com
- * 	
+ *
  */
- 
+
 namespace PAJ\Application\Docker\Scale\Manager;
- 
+
 class Varnish
 {
-	
+
 	public static function updateVarnish($_silent,$_forceUpdate)
 	{
 		$_upstreamScaleContainers=array();
 		$_managerOutput=array();
-		
+
 		$_projectName=getenv('SCALE_MANAGER_PROJECTNAME');
 		if (!$_projectName){ $_projectName='magento2';}
-		
+
 		$_projectDomainName=getenv('APPDOMAIN');
 		if (!$_projectDomainName){ $_projectDomainName='dev.com';}
-		
+
 		$_scaleContainerServiceName=getenv('SCALE_CONTAINER_NAME');
 		if (!$_scaleContainerServiceName){ $_scaleContainerServiceName='php-apache';}
 
-		$_proxyNetworkName=getenv('PROXY_NETWORK_NAME');					
+		$_proxyNetworkName=getenv('PROXY_NETWORK_NAME');
 		if (!$_proxyNetworkName){ $_proxyNetworkName='proxy';}
-		
+
 		$_scaleContainerName=$_projectName.'_'.$_scaleContainerServiceName;
 		$_success=false;
-		
+
 		// get docker container data
 		//
 		$_obj=new \PAJ\Library\Docker\Scale\Manager\GetContainers();
-		
+
 			$_output=$_obj->get('output');
 			$_success=$_obj->get('success');
 			$_managerOutput['getcontainers']=$_output;
 			unset($_obj);
-			
+
 		if($_success) // got container data
 		{
 
@@ -60,24 +60,24 @@ class Varnish
 					$_upstreamScaleContainers[]=$_container;
 				}
 			}
-			
+
 			if (!$_silent) {echo count($_upstreamScaleContainers). ' upstream docker containers found.'. "\n";}
-			
+
 			// init upstream containers array
 			//
 			$_managerOutput['upstreamcontainers']=$_upstreamScaleContainers;
-			
+
 			// extract upstream configuration data from containers
 			//
 			foreach($_upstreamScaleContainers as $_server)
 			{
 				$_managerOutput['containerdata']=$_server;
-				
+
 				$_containerIP=false;
-				
+
 				if (isset($_server['networksettings']['Networks'][$_server['project'].'_wwwserver']['IPAddress']))
 				{
-					$_containerIP=$_server['networksettings']['Networks'][$_server['project'].'_wwwserver']['IPAddress'];				
+					$_containerIP=$_server['networksettings']['Networks'][$_server['project'].'_wwwserver']['IPAddress'];
 					$_containerUpstreamServerConfig[]=array(
 						'name'=>str_replace('/','',$_server['name']),
 						'ip' => $_containerIP
@@ -85,35 +85,35 @@ class Varnish
 				}
 				if (!$_silent) {echo $_server['name']. ' : '. $_containerIP. ' - '. $_server['up']. "\n";}
 			}
-				
+
 			$_managerOutput['containerupstreamconfig']=$_containerUpstreamServerConfig;
 			$_managerOutput['scalechange']['detected']='false';
-			
+
 			if (count($_containerUpstreamServerConfig) > 0)
 			{
-			
+
 				// generate new vcl config
 				//
 				$_varnishVCLUpdateConfig = "";
-				
+
 				//$_probe_file = "/healtchcheck.php";
-				
+
 				foreach ($_containerUpstreamServerConfig as $_config) {
-				
+
 					$ip=$_config['ip'];
 					$name=str_replace('-','_',$_config['name']);
-					$_varnishVCLUpdateConfig .= "backend $name {\n\t.host = \"$ip\";\n\t.port = \"80\";\n\t.probe = {.request =  \"GET /healthcheck.php HTTP/1.1\" \"Host: $_projectName.$_projectDomainName\" \"Connection: close\" \"Accept: text/html\";.timeout = 1s;.interval = 30s;.window = 10;.threshold = 8;}\n}\n";
+					$_varnishVCLUpdateConfig .= "backend $name {\n\t.host = \"$ip\";\n\t.port = \"80\";\n\t.probe = {.request =  \"GET /pub/health_check.php HTTP/1.1\" \"Host: $_projectName.$_projectDomainName\" \"Connection: close\" \"Accept: text/html\";.timeout = 2s;.interval = 10s;.window = 10;.threshold = 8;}\n}\n";
 				}
 
 				$_varnishVCLUpdateConfig .= "sub vcl_init {\n\tnew cluster1 = directors.round_robin();\n";
-				
+
 				foreach ($_containerUpstreamServerConfig as $_config) {
-				
+
 					$ip=$_config['ip'];
 					$name=str_replace('-','_',$_config['name']);
 					$_varnishVCLUpdateConfig .= "\tcluster1.add_backend($name);\n";
 				}
-				
+
 				$_varnishVCLUpdateConfig .= "}\n";
 				$_varnishVCLUpdateConfig .= "sub vcl_recv {set req.backend_hint = cluster1.backend();}\n";
 
@@ -123,36 +123,36 @@ class Varnish
 				//
 				$_key='docker-scalemanager-varnishvclupdate';
 				$_varnishVCLConfig=\PAJ\Library\Cache\Helper::getCachedStringWithNameSpace($_key,'VARNISHVCLUPDATE',false);
-				
+
 				// detect change by comparing cached vcl config to generated config || if update forced
-				//				
+				//
 				if ($_varnishVCLConfig !== $_varnishVCLUpdateConfig || $_forceUpdate)
 				{
 					// change!!
 					//
 					try
 					{
-						$_varnish=new \PAJ\Library\Docker\Scale\Varnish\VCL('varnish');				
-						$_varnishVCLUpdate=$_varnish->updateVCL($_varnishVCLUpdateConfig);				
+						$_varnish=new \PAJ\Library\Docker\Scale\Varnish\VCL('varnish');
+						$_varnishVCLUpdate=$_varnish->updateVCL($_varnishVCLUpdateConfig);
 						$_managerOutput['varnishvclupdate']=explode("\n",$_varnishVCLUpdate);
-						
-						
+
+
 						if (!$_silent) {echo 'change detected, VARNISH VCL was updated.'. "\n";}
-						
+
 						$_managerOutput['scalechange']['detected']='true';
 						$_managerOutput['scalechange']['timestamp']=(new \DateTime())->getTimestamp();
-						
+
 						// increment namespace for VARNISHVCLUPDATE
 						//
 						$_cache=new \PAJ\Library\Cache\Memcache();
 							$_cache->incVersion('VARNISHVCLUPDATE');
 								unset($_cache);
-								
+
 						\PAJ\Library\Cache\Helper::setCachedStringWithNameSpace($_varnishVCLUpdateConfig,$_key,'VARNISHVCLUPDATE',0);
 						if (!$_silent) {echo 'varnish vcl configuration was updated '.  (new \DateTime())->format('d-m-Y H:i:s'). "\n";}
-						$_managerOutput['updatestream']='varnish vcl configuration was updated '. (new \DateTime())->format('d-m-Y H:i:s');						
+						$_managerOutput['updatestream']='varnish vcl configuration was updated '. (new \DateTime())->format('d-m-Y H:i:s');
 					}
-					
+
 					catch (\Exception $e)
 					{
 						// increment namespace for VARNISHVCLUPDATE
@@ -160,34 +160,34 @@ class Varnish
 						$_cache=new \PAJ\Library\Cache\Memcache();
 							$_cache->incVersion('VARNISHVCLUPDATE');
 								unset($_cache);
-								
+
 						// Error during update
 						$_managerOutput['error']=$e->getMessage();
 						if (!$_silent) {echo 'ERROR - '.$e->getMessage(). "\n";}
 					}
-							
+
 				} else {
-					
+
 					// no change
 					//
 					if (!$_silent) {echo 'no upstream host configuration changes detected.'. "\n";}
-					
+
 				}
-					
-				
+
+
 			} else {
-				
+
 				$_managerOutput['updatestream']='ERROR - No upstream containers available!';
 				if (!$_silent) {echo 'ERROR - No upstream containers available!'. "\n";}
 			}
-		}	
+		}
 
 		$_managerOutput['projectname']=$_projectName;
 		$_managerOutput['servicename']=$_scaleContainerServiceName;
 		$_managerOutput['scalecontainername']=$_scaleContainerName;
 		$_managerOutput['scalecontainercount']=count($_containerUpstreamServerConfig);
-					
+
 		return $_managerOutput;
-		
+
 	}
 }
