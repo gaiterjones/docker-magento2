@@ -10,8 +10,8 @@ backend apache_1 {
 	.probe = {
 	    .request =  "GET /healthcheck.php HTTP/1.1"
 	                "Host: magento2.dev.com"
-	                "Connection: close"
-	                "Accept: text/html" ;
+	                "Connection: close" 
+	                "Accept: text/html";
 	    .timeout  = 1s;
 	    .interval = 60s;
 	    .window    = 10;

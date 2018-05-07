@@ -1,4 +1,4 @@
-# Docker Magento 2.2.3 Open Source (CE)
+# Docker Magento 2.2.4 Open Source (CE)
 
 Docker containers for Magento 2.2.x development including :
 
