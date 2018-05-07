@@ -92,7 +92,7 @@ services:
           - CACHE_SIZE=64M
 
     mysql:
-        image: mysql:latest
+        image: mysql:5.7
         hostname: mysql
         domainname: "${APPDOMAIN}"
         volumes:
