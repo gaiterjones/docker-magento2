@@ -44,9 +44,11 @@ services:
         expose:
             - 80
             - 443
-        ports:
-           - "3000:3000"
-           - "3001:3001"
+            - 3000
+            - 3001
+        #ports:
+        #   - "3000:3000"
+        #   - "3001:3001"
         volumes:
             #- "${CONTAINERDATA}/${PROJECT_NAME}/dev1/www:/var/www"
             - "${CONTAINERDATA}/${PROJECT_NAME}/data:/home/data"
