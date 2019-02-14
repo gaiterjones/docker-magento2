@@ -71,14 +71,14 @@ services:
         depends_on:
             - php-apache
     varnish:
-        build: ./varnish/varnish5
+        build: ./varnish/varnish5-2
         hostname: varnish
         domainname: "${APPDOMAIN}"
-        expose:
-          - 80
-          - 6082
-        #ports:
-        #    - "80:80"
+        #expose:
+        #  - 80
+        #  - 6082
+        ports:
+            - "80:80"
         networks:
            - wwwserver
            - proxy_server
@@ -86,7 +86,7 @@ services:
            - php-apache
         volumes:
           - "${CONTAINERDATA}/${PROJECT_NAME}/data:/home/data"
-          - ./varnish/varnish5.vcl:/etc/varnish/default.vcl
+          - ./varnish/varnish52.vcl:/etc/varnish/default.vcl
           - ./varnish/varnish.secret:/etc/varnish/secret
         environment:
           - CACHE_SIZE=64M
