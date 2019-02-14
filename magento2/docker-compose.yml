@@ -16,7 +16,7 @@ services:
             - ./varnish/varnish.secret:/etc/varnish/secret
         networks:
             - wwwserver
-            - proxy_server
+            #- proxy_server
         environment:
             SCALE_MANAGER_PROJECTNAME: "${PROJECT_NAME}"
             SCALE_CONTAINER_NAME: "${SCALE_CONTAINER_NAME}"
@@ -81,7 +81,7 @@ services:
             - "80:80"
         networks:
            - wwwserver
-           - proxy_server
+           #- proxy_server
         depends_on:
            - php-apache
         volumes:
@@ -115,7 +115,7 @@ services:
             - 80
         networks:
             - database
-            - proxy_server
+            #- proxy_server
         depends_on:
             - mysql
         environment:
@@ -125,5 +125,5 @@ services:
 networks:
     database:
     wwwserver:
-    proxy_server:
-      external: true
+    #proxy_server:
+      #external: true
