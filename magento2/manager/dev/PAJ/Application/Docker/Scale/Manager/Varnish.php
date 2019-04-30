@@ -102,7 +102,7 @@ class Varnish
 
 					$ip=$_config['ip'];
 					$name=str_replace('-','_',$_config['name']);
-					$_varnishVCLUpdateConfig .= "backend $name {\n\t.host = \"$ip\";\n\t.port = \"80\";\n\t.probe = {.request =  \"GET /pub/health_check.php HTTP/1.1\" \"Host: $_projectName.$_projectDomainName\" \"Connection: close\" \"Accept: text/html\";.timeout = 2s;.interval = 10s;.window = 10;.threshold = 8;}\n}\n";
+					$_varnishVCLUpdateConfig .= "backend $name {\n\t.host = \"$ip\";\n\t.port = \"80\";\n\t.probe = {.request =  \"GET /pub/health_check.php HTTP/1.1\" \"Host: $_projectName.$_projectDomainName\" \"Connection: close\" \"Accept: text/html\";.timeout = 10s;.interval = 60s;.window = 10;.threshold = 8;}\n}\n";
 				}
 
 				$_varnishVCLUpdateConfig .= "sub vcl_init {\n\tnew cluster1 = directors.round_robin();\n";

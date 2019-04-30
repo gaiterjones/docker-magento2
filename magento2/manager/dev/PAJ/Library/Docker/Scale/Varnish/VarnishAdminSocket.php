@@ -88,7 +88,7 @@ class VarnishAdminSocket {
     protected $_port = 6082;
     protected $_private = null;
     protected $_authSecret = null;
-    protected $_timeout = 5;
+    protected $_timeout = 30; // timeout
     protected $_version = null; //auto-detect
 
     public function __construct(array $options = array()) {
