@@ -1,4 +1,4 @@
-FROM gaiterjones/magento2:2.3.0
+FROM gaiterjones/magento2:2.3.1
 LABEL maintainer "paj@gaiterjones.com"
 LABEL service "Magento 2 PHP-APACHE Service"
 # ------------------------------------------------------------------
@@ -38,6 +38,15 @@ RUN a2enmod rewrite \
 	&& a2enmod remoteip \
 	&& a2enconf remoteip \
 	&& a2ensite 000-default.conf
+
+# https://devdocs.magento.com/guides/v2.3/config-guide/cli/config-cli.html#config-install-cli-first
+RUN export PATH=$PATH:/var/www/dev/magento2/bin
+
+# DISABLE XDEBUG CAN CAUSE SLOW BURN
+# https://stackoverflow.com/questions/8754826/how-to-disable-xdebug
+#RUN cd /usr/local/etc/php/conf.d \
+#	&& mkdir disabled \
+#	&& mv ext-xdebug.ini disabled
 
 WORKDIR /var/www/dev/magento2
 

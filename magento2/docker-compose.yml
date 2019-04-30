@@ -92,7 +92,21 @@ services:
           - ./varnish/varnish.secret:/etc/varnish/secret
         environment:
           - CACHE_SIZE=64M
-
+    elasticsearch:
+        build: ./elasticsearch
+        environment:
+          - discovery.type=single-node
+          - "ES_JAVA_OPTS: -Xms750m -Xmx750m"
+        networks:
+           - wwwserver
+           #- proxy_server
+        expose:
+            - 9200
+        depends_on:
+           - php-apache
+        volumes:
+          #- "${CONTAINERDATA}/${PROJECT_NAME}/elasticsearch/data1:/usr/share/elasticsearch/data"
+          - "${CONTAINERDATA}/${PROJECT_NAME}/data:/home/data"
     mysql:
         image: mysql:5.7
         hostname: mysql
