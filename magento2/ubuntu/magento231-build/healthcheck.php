@@ -1,17 +1,17 @@
 <?php
 /**
- *  
- *  Copyright (C) 2017
+ *
+ *  Copyright (C) 2019
  *
  *
  *  @who	   	PAJ
  *  @info   	paj@gaiterjones.com
  *  @license    blog.gaiterjones.com
- * 	
+ *
  *
  */
 
- echo 'OK';
+header("HTTP/1.1 200 OK");
 
 
 ?>

@@ -2,7 +2,7 @@
 /**
  *  SCALE MANAGER VARNISH
  *
- *  Copyright (C) 2018
+ *  Copyright (C) 2019
  *
  *
  *  @who	   	PAJ
@@ -97,12 +97,17 @@ class Varnish
 				$_varnishVCLUpdateConfig = "";
 
 				//$_probe_file = "/healtchcheck.php";
+				$_probe_file = "/pub/health_check.php";
+				$_timeout="60";
+				$_interval="120";
+				$_window="10";
+				$_threshold="5";
 
 				foreach ($_containerUpstreamServerConfig as $_config) {
 
 					$ip=$_config['ip'];
 					$name=str_replace('-','_',$_config['name']);
-					$_varnishVCLUpdateConfig .= "backend $name {\n\t.host = \"$ip\";\n\t.port = \"80\";\n\t.probe = {.request =  \"GET /pub/health_check.php HTTP/1.1\" \"Host: $_projectName.$_projectDomainName\" \"Connection: close\" \"Accept: text/html\";.timeout = 10s;.interval = 60s;.window = 10;.threshold = 8;}\n}\n";
+					$_varnishVCLUpdateConfig .= "backend $name {\n\t.host = \"$ip\";\n\t.port = \"80\";\n\t.first_byte_timeout = 600s;\n\t.probe = {.request =  \"GET ". $_probe_file. " HTTP/1.1\" \"Host: $_projectName.$_projectDomainName\" \"Connection: close\" \"Accept: text/html\";.timeout = ".$_timeout."s;.interval = ".$_interval."s;.window = ".$_window.";.threshold = ".$_threshold.";}\n}\n";
 				}
 
 				$_varnishVCLUpdateConfig .= "sub vcl_init {\n\tnew cluster1 = directors.round_robin();\n";

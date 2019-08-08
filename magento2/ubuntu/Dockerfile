@@ -42,11 +42,11 @@ RUN a2enmod rewrite \
 # https://devdocs.magento.com/guides/v2.3/config-guide/cli/config-cli.html#config-install-cli-first
 RUN export PATH=$PATH:/var/www/dev/magento2/bin
 
-# DISABLE XDEBUG CAN CAUSE SLOW BURN
+# DISABLE XDEBUG
 # https://stackoverflow.com/questions/8754826/how-to-disable-xdebug
-#RUN cd /usr/local/etc/php/conf.d \
-#	&& mkdir disabled \
-#	&& mv ext-xdebug.ini disabled
+RUN cd /usr/local/etc/php/conf.d \
+	&& mkdir disabled \
+	&& mv docker-php-ext-xdebug.ini disabled
 
 WORKDIR /var/www/dev/magento2
 
