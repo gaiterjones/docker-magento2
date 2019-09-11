@@ -1,6 +1,6 @@
 FROM phusion/baseimage:0.11
 # https://github.com/phusion/baseimage-docker/releases
-# build for gaiterjones/phusion1100-apache2-php7-2:latest
+# build for gaiterjones/phusion1100-apache2-php7-1:latest
 # BIONIX BABY
 # UBUNTU 18.04
 
@@ -47,9 +47,9 @@ ENV PHP_EXTRA_CONFIGURE_ARGS --with-apxs2
 ENV GPG_KEYS 1729F83938DA44E27BA0F4D3DBDB397470D12172 528995BFEDFBA7191D46839EF9BA0ADA31CBD89E A917B1ECDA84AEC2B568FED6F50ABC807BD5DCD0
 
 # http://php.net/releases/
-ENV PHP_VERSION 7.2.22
-ENV PHP_FILENAME php-7.2.22.tar.xz
-ENV PHP_SHA256 eb597fcf8dc0a6211a42a6346de4f63ee166829a6df6d8ed767fe14be8d1c3a3
+ENV PHP_VERSION 7.1.32
+ENV PHP_FILENAME php-7.1.32.tar.xz
+ENV PHP_SHA256 7f38b5bdaae3184d325a8c70e86c010afcc33651d15faafe277a0db6d2ea2741
 
 RUN set -xe \
 	&& buildDeps=" \
