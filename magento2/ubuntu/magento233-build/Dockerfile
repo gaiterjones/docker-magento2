@@ -1,12 +1,13 @@
-FROM gaiterjones/phusion1100-apache2-php7-2
+FROM gaiterjones/phusion1100-apache2-php7-2:25
 LABEL maintainer="paj@gaiterjones.com"
 LABEL description="Magento 2 PHP-APACHE Service"
 
-ENV MAGENTO_VERSION 2.3.1
-# sha256sum Magento-Open-Source-2.3.1.tar.gz
-ENV MAGENTO_SHA256 6b0d1e97bb1cf6a7d254c5c68d97d98e649d622ca52c833ecb6189fb1685639b
+ENV MAGENTO_VERSION 2.3.3
+# sha256sum Magento-Open-Source-2.3.3.tar.gz
+ENV MAGENTO_SHA256 6ac13592c7a90502643ddfd2edf8b21ba88a6a5e11a0d1b8179ef915584518a9
 
 # dependencies
+# remove mcrpyt for > php 7.2 ?
 RUN requirements="libpng-dev libmcrypt-dev libmcrypt4 libcurl3-dev libfreetype6 libjpeg-turbo8 libjpeg-turbo8-dev libfreetype6-dev libicu-dev libxslt1-dev msmtp nano git" \
     && apt-get update && apt-get install -y $requirements && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-install pdo_mysql \
@@ -81,13 +82,12 @@ COPY ./healthcheck.php /var/www/dev/magento2/
 COPY ./auth.json /var/www/.composer/
 RUN set -x \
 	&& usermod -u 1000 www-data \
-	&& chsh -s /bin/bash www-data
-
-RUN chown -R www-data:www-data /var/www
+	&& chsh -s /bin/bash www-data \
+    && chown -R www-data:www-data /var/www
 
 # composer
-RUN chsh -s /bin/bash www-data
-RUN su www-data -c "cd /var/www/dev/magento2 && composer install"
+RUN chsh -s /bin/bash www-data \
+    && su www-data -c "cd /var/www/dev/magento2 && composer install"
 
 # php RedisAdmin
 # https://github.com/erikdubbelboer/phpRedisAdmin

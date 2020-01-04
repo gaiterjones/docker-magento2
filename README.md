@@ -1,4 +1,4 @@
-# Docker Magento 2.3.1 Open Source (CE) 09-2019
+# Docker Magento 2.3.X Open Source (CE) 01-2020
 
 Docker containers for Magento 2.3.x development including :
 
@@ -13,7 +13,7 @@ Docker containers for Magento 2.3.x development including :
   - Scaleable php-apache service
 
 for PHP 7.1.32 use gaiterjones/magento2:2.3.0_PHP7.1
-for PHP 7.2.22 use gaiterjones/magento2:2.3.0
+for PHP 7.2.25 use gaiterjones/magento2:2.3.3
 
 See http://blog.gaiterjones.com/docker-magento-2-development-deployment-php7-apache2-4-redis-varnish-scaleable/ for deployment instructions.
 
