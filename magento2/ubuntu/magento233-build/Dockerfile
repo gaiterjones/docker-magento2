@@ -33,7 +33,6 @@ RUN set -x \
     && pecl install xdebug-2.6.0beta1 \
     && docker-php-ext-enable xdebug
 
-
 # Install memcache extension
 #
 RUN set -x \
@@ -53,7 +52,6 @@ RUN set -x \
 #
 RUN set -x \
 	&& mkdir /var/www/dev \
-	&& mkdir /var/www/dev/magento2 \
 	&& rm -rf /var/www/html/* \
 	&& mkdir /tmp/magento2 \
 	&& cd /tmp/magento2 \
@@ -61,12 +59,14 @@ RUN set -x \
 	&& echo "$MAGENTO_SHA256 $MAGENTO_VERSION.tar.gz" | sha256sum -c - \
 	&& tar xvf $MAGENTO_VERSION.tar.gz \
 	&& cd .. \
-	&& mv magento2/* magento2/.htaccess /var/www/dev/magento2
+	&& mv magento2 /var/www/dev/ \
+    && mkdir /var/www/dev/magento2/composer_home
 
 # install composer
 #
-RUN curl -sS https://getcomposer.org/installer | php
-RUN mv composer.phar /usr/local/bin/composer
+RUN set -x \
+    && curl -sS https://getcomposer.org/installer | php \
+    && mv composer.phar /usr/local/bin/composer
 
 # install magerun 2
 #
@@ -78,27 +78,37 @@ RUN set -x \
 
 # prepare Mage source
 #
+# add Magento 2 file owner
+#
+# ensure www-data is group 33
+# add new file owner group 1000
+# file owner member of www-data
+#
 COPY ./healthcheck.php /var/www/dev/magento2/
 COPY ./auth.json /var/www/.composer/
+ENV COMPOSER_HOME=/var/www/.composer
 RUN set -x \
-	&& usermod -u 1000 www-data \
-	&& chsh -s /bin/bash www-data \
-    && chown -R www-data:www-data /var/www
+    && usermod -u 33 www-data \
+    && adduser --disabled-password --gecos '' magento \
+    && usermod -u 1000 magento \
+    && usermod -a -G www-data magento \
+    && chown -R magento:www-data /var/www
 
 # composer
-RUN chsh -s /bin/bash www-data \
-    && su www-data -c "cd /var/www/dev/magento2 && composer install"
+RUN chsh -s /bin/bash magento \
+    && su magento -c "cd /var/www/dev/magento2 && composer install"
 
 # php RedisAdmin
 # https://github.com/erikdubbelboer/phpRedisAdmin
 #
-RUN su www-data -c "cd /var/www/dev && composer create-project -s dev erik-dubbelboer/php-redis-admin /var/www/dev/phpRedisAdmin"
+RUN su magento -c "cd /var/www/dev && composer create-project -s dev erik-dubbelboer/php-redis-admin /var/www/dev/phpRedisAdmin"
 
 # Magento DEVELOPMENT permissions (this may take a while...)
 #
 RUN set -x \
     && cd /var/www/dev/magento2 \
-    && find var vendor pub/static pub/media app/etc -type f -exec chmod g+w {} \; && find var vendor pub/static pub/media app/etc -type d -exec chmod g+ws {} \; && chmod u+x bin/magento
+    && rm -rf ./generated/metadata/* ./generated/code/* ./pub/static/* ./var/cache/* ./var/page_cache/* ./var/view_preprocessed/* ./var/log/* \
+    && find var generated vendor pub/static pub/media app/etc -type f -exec chmod g+w {} \; && find var generated vendor pub/static pub/media app/etc -type d -exec chmod g+ws {} \; && chmod u+x bin/magento
 
 # scripts
 #

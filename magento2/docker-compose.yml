@@ -5,13 +5,13 @@ version: "3.1"
 
 services:
     manager:
-        build: ./manager/phusion
+        build: ./manager/magento2
         hostname: manager
         domainname: "${APPDOMAIN}"
         volumes:
-            #- "${CONTAINERDATA}/${PROJECT_NAME}/dev2:/var/www/dev"
+            #- "${CONTAINERDATA}/${PROJECT_NAME}/dev1:/var/www/dev"
             - "${CONTAINERDATA}/${PROJECT_NAME}/data:/home/data"
-            - "${MANAGERDEV}:/home/dev"
+            - "${MANAGERDEV}:/var/www/dev"
             - /var/run/docker.sock:/var/run/docker.sock
             - ./varnish/varnish.secret:/etc/varnish/secret
         networks:
@@ -56,6 +56,11 @@ services:
         networks:
             - database
             - wwwserver
+        healthcheck:
+              test: "curl --fail -sS ${MAGENTO_URL}:80/pub/health_check.php || exit 1"
+              interval: 2m
+              timeout: 60s
+              retries: 5
         depends_on:
             - mysql
         env_file: .env
@@ -96,7 +101,7 @@ services:
         build: ./elasticsearch
         environment:
           - discovery.type=single-node
-          - "ES_JAVA_OPTS: -Xms750m -Xmx750m"
+          - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
         networks:
            - wwwserver
            #- proxy_server

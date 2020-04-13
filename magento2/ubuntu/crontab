@@ -1,3 +1,3 @@
-* * * * * www-data /usr/local/bin/php /var/www/dev/magento2/bin/magento cron:run | grep -v "Ran jobs by schedule" >> /var/www/dev/magento2/var/log/magento.cron.log
-* * * * * www-data /usr/local/bin/php /var/www/dev/magento2/update/cron.php >> /var/www/dev/magento2/var/log/update.cron.log
-* * * * * www-data /usr/local/bin/php /var/www/dev/magento2/bin/magento setup:cron:run >> /var/www/dev/magento2/var/log/setup.cron.log
+* * * * * /usr/local/bin/php /var/www/dev/magento2/bin/magento cron:run | grep -v "Ran jobs by schedule" >> /var/www/dev/magento2/var/log/magento.cron.log
+* * * * * /usr/local/bin/php /var/www/dev/magento2/update/cron.php >> /var/www/dev/magento2/var/log/update.cron.log
+* * * * * /usr/local/bin/php /var/www/dev/magento2/bin/magento setup:cron:run >> /var/www/dev/magento2/var/log/setup.cron.log

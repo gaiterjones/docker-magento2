@@ -1,0 +1,8 @@
+#
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+30 * * * *  /usr/sbin/logrotate -v /etc/logrotate.d/magento2 --state /var/www/.logrot_state
+# magento2 system cron
+#* * * * * /usr/local/bin/php /var/www/dev/magento2/bin/magento cron:run | grep -v "Ran jobs by schedule" >> /var/www/dev/magento2/var/log/magento.cron.log
+#* * * * * /usr/local/bin/php /var/www/dev/magento2/update/cron.php >> /var/www/dev/magento2/var/log/update.cron.log
+#* * * * * /usr/local/bin/php /var/www/dev/magento2/bin/magento setup:cron:run >> /var/www/dev/magento2/var/log/setup.cron.log

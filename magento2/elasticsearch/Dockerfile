@@ -1,6 +1,8 @@
-FROM docker.elastic.co/elasticsearch/elasticsearch:6.6.2
-
-# Install ElasticSuite requirements (https://github.com/Smile-SA/elasticsuite/wiki/ModuleInstall)
+FROM elasticsearch:6.6.2
+LABEL maintainer="GAITERJONES"
+# Magento 2 required plugins
+# https://github.com/elastic/elasticsearch-analysis-icu
+# https://github.com/elastic/elasticsearch-analysis-phonetic
 RUN \
     elasticsearch-plugin install analysis-icu && \
     elasticsearch-plugin install analysis-phonetic

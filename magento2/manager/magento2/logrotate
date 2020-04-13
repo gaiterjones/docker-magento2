@@ -1,0 +1,10 @@
+/var/www/dev/magento2/var/log/*.log {
+        size 10M
+        missingok
+        rotate 50
+        compress
+        delaycompress
+        notifempty
+        dateext
+        dateformat -%Y-%m-%d-%s
+    }

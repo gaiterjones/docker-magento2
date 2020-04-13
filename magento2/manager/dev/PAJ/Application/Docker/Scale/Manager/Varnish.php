@@ -2,7 +2,7 @@
 /**
  *  SCALE MANAGER VARNISH
  *
- *  Copyright (C) 2019
+ *  Copyright (C) 2020
  *
  *
  *  @who	   	PAJ
@@ -27,6 +27,9 @@ class Varnish
 		$_projectDomainName=getenv('APPDOMAIN');
 		if (!$_projectDomainName){ $_projectDomainName='dev.com';}
 
+		$_magentoHostName=getenv('MAGENTO_HOSTNAME');
+		if (!$_magentoHostName){ $_magentoHostName='magento2';}
+
 		$_scaleContainerServiceName=getenv('SCALE_CONTAINER_NAME');
 		if (!$_scaleContainerServiceName){ $_scaleContainerServiceName='php-apache';}
 
@@ -34,6 +37,7 @@ class Varnish
 		if (!$_proxyNetworkName){ $_proxyNetworkName='proxy';}
 
 		$_scaleContainerName=$_projectName.'_'.$_scaleContainerServiceName;
+
 		$_success=false;
 
 		// get docker container data
@@ -97,7 +101,7 @@ class Varnish
 				$_varnishVCLUpdateConfig = "";
 
 				//$_probe_file = "/healtchcheck.php";
-				$_probe_file = "/pub/health_check.php";
+				$_probe_file = "/health_check.php";
 				$_timeout="60";
 				$_interval="120";
 				$_window="10";
@@ -107,7 +111,7 @@ class Varnish
 
 					$ip=$_config['ip'];
 					$name=str_replace('-','_',$_config['name']);
-					$_varnishVCLUpdateConfig .= "backend $name {\n\t.host = \"$ip\";\n\t.port = \"80\";\n\t.first_byte_timeout = 600s;\n\t.probe = {.request =  \"GET ". $_probe_file. " HTTP/1.1\" \"Host: $_projectName.$_projectDomainName\" \"Connection: close\" \"Accept: text/html\";.timeout = ".$_timeout."s;.interval = ".$_interval."s;.window = ".$_window.";.threshold = ".$_threshold.";}\n}\n";
+					$_varnishVCLUpdateConfig .= "backend $name {\n\t.host = \"$ip\";\n\t.port = \"80\";\n\t.first_byte_timeout = 600s;\n\t.probe = {.request =  \"GET ". $_probe_file. " HTTP/1.1\" \"Host: $_magentoHostName.$_projectDomainName\" \"Connection: close\" \"Accept: text/html\";.timeout = ".$_timeout."s;.interval = ".$_interval."s;.window = ".$_window.";.threshold = ".$_threshold.";}\n}\n";
 				}
 
 				$_varnishVCLUpdateConfig .= "sub vcl_init {\n\tnew cluster1 = directors.round_robin();\n";

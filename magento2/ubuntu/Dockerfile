@@ -1,4 +1,4 @@
-FROM gaiterjones/magento2:2.3.1
+FROM gaiterjones/magento2:2.3.3
 LABEL maintainer "paj@gaiterjones.com"
 LABEL service "Magento 2 PHP-APACHE Service"
 # ------------------------------------------------------------------
@@ -6,10 +6,6 @@ LABEL service "Magento 2 PHP-APACHE Service"
 # configs
 #
 COPY ./php/php.ini /usr/local/etc/php/conf.d/php.ini
-COPY ./apache/apache2.conf /etc/apache2/apache2.conf
-COPY ./apache/000-default.conf /etc/apache2/sites-available/000-default.conf
-COPY ./apache/remoteip.conf /etc/apache2/conf-available/remoteip.conf
-COPY ./php/msmtprc /etc/msmtprc
 COPY ./phpRedisAdmin_config.inc.php /var/www/dev/phpRedisAdmin/includes/config.inc.php
 
 # Magento repo auth config
@@ -23,6 +19,7 @@ RUN set -x \
 
 # msmtprc smtp config
 #
+COPY ./php/msmtprc /etc/msmtprc
 ARG APPDOMAIN
 ARG SMTP
 RUN set -x \
@@ -30,6 +27,9 @@ RUN set -x \
 	&& sed -i "s/XMAILDOMAINX/$APPDOMAIN/g" /etc/msmtprc \
 	&& cat /etc/msmtprc
 
+COPY ./apache/apache2.conf /etc/apache2/apache2.conf
+COPY ./apache/000-default.conf /etc/apache2/sites-available/000-default.conf
+COPY ./apache/remoteip.conf /etc/apache2/conf-available/remoteip.conf
 # enable mods and sites
 #
 RUN a2enmod rewrite \
@@ -48,10 +48,10 @@ RUN cd /usr/local/etc/php/conf.d \
 	&& mkdir disabled \
 	&& mv docker-php-ext-xdebug.ini disabled
 
-WORKDIR /var/www/dev/magento2
-
 # cron job
 #
 ADD crontab /etc/cron.d/magento2-cron
 RUN chmod 0644 /etc/cron.d/magento2-cron
-RUN crontab -u www-data /etc/cron.d/magento2-cron
+RUN crontab -u magento /etc/cron.d/magento2-cron
+
+WORKDIR /var/www/dev/magento2
