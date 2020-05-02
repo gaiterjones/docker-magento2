@@ -1,4 +1,5 @@
 
+
 # Docker Magento 2.3.X Open Source (CE) 05-2020
 
 Docker containers for Magento 2.3.x development including :
@@ -21,18 +22,27 @@ Docker containers for Magento 2.3.x development including :
 3. docker-compose build
 4. docker-compose up -d   
 5. Install sample data
-docker exec -i -t --user magento magento2_php-apache_1 install-sampledata  
+
+    docker exec -i -t --user magento magento2_php-apache_1 install-sampledata  
+
 6. Install Magento
-docker exec -i -t --user magento magento2_php-apache_1 install-magento  
+
+    docker exec -i -t --user magento magento2_php-apache_1 install-magento
+
+
 
 ## Test
+
+ - Admin
+http://magento2.dev.com/admin  
+ - Frontend
 http://magento2.dev.com   
 
 ### More
 
-http://blog.gaiterjones.com/docker-magento-2-development-deployment-php7-apache2-4-redis-varnish-scaleable/ for further deployment instructions.
+https://blog.gaiterjones.com/docker-magento-2-development-deployment-php7-apache2-4-redis-varnish-scaleable/ for further deployment instructions.
 
-![MAGENTO2 INSTALL](http://blog.gaiterjones.com/dropbox/docker-install-magento2.gif)
+![MAGENTO2 INSTALL](https://blog.gaiterjones.com/dropbox/docker-install-magento235.gif)
 
 for PHP 7.1.32 use gaiterjones/magento2:2.3.0_PHP7.1  
 for PHP 7.3 use gaiterjones/magento2:2.3.5  
