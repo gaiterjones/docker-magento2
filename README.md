@@ -13,18 +13,22 @@ Docker containers for Magento 2.3.x development including :
   - REDIS Session, System, FPC
   - Scaleable php-apache service
 
-for PHP 7.1.32 use gaiterjones/magento2:2.3.0_PHP7.1  
-for PHP 7.3 use gaiterjones/magento2:2.3.5  
+# Installation
 
-git clone https://github.com/gaiterjones/docker-magento2-2  
-EDIT .ENV  
-docker-compose build  
-docker exec -i -t --user magento magento2_php-apache_1 install-sampledata  
-docker exec -i -t --user magento magento2_php-apache_1 install-magento  
+  - git clone https://github.com/gaiterjones/docker-magento2-2  
+  - EDIT .ENV  
+  - docker-compose build  
+  - docker exec -i -t --user magento magento2_php-apache_1 install-sampledata  
+  - docker exec -i -t --user magento magento2_php-apache_1 install-magento  
 
-TEST at  
+# Test
 http://magento2.dev.com   
+
+# More
 
 http://blog.gaiterjones.com/docker-magento-2-development-deployment-php7-apache2-4-redis-varnish-scaleable/ for further deployment instructions.
 
 ![MAGENTO2 INSTALL](http://blog.gaiterjones.com/dropbox/docker-install-magento2.gif)
+
+for PHP 7.1.32 use gaiterjones/magento2:2.3.0_PHP7.1  
+for PHP 7.3 use gaiterjones/magento2:2.3.5  
