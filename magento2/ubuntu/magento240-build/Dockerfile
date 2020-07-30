@@ -1,26 +1,29 @@
-FROM gaiterjones/phusion1100-apache2-php7-1:32
+FROM gaiterjones/phusion1100-apache2-php7-4:7
 LABEL maintainer="paj@gaiterjones.com"
 LABEL description="Magento 2 PHP-APACHE Service"
 
-ENV MAGENTO_VERSION 2.3.0
-# sha256sum Magento-Open-Source-2.3.0.tar.gz
-ENV MAGENTO_SHA256 37bac23d2e80cde07e0267e87b87b74f81fee66cc630850bbef1b3a056ad172c
+ENV MAGENTO_VERSION 2.4.0
+# sha256sum Magento-Open-Source-2.4.0.tar.gz
+ENV MAGENTO_SHA256 7f8e13412103b8f63979fff353fefb3d6475296bd76a1f4f4407c76706f9d9a5
 
 # dependencies
-RUN requirements="libpng-dev libmcrypt-dev libmcrypt4 libcurl3-dev libfreetype6 libjpeg-turbo8 libjpeg-turbo8-dev libfreetype6-dev libicu-dev libxslt1-dev msmtp nano git" \
+RUN requirements="libonig-dev libzip-dev libpng-dev libcurl3-dev zlib1g-dev libpng-dev libjpeg-turbo8 libjpeg-turbo8-dev libfreetype6 libfreetype6-dev libicu-dev libxslt1-dev msmtp nano git" \
     && apt-get update && apt-get install -y $requirements && rm -rf /var/lib/apt/lists/* \
-    && docker-php-ext-install pdo_mysql \
-    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install gd \
-    && docker-php-ext-install mcrypt \
-    && docker-php-ext-install bcmath \
-    && docker-php-ext-install mbstring \
-    && docker-php-ext-install zip \
-    && docker-php-ext-install intl \
-    && docker-php-ext-install xsl \
-    && docker-php-ext-install soap \
-    && docker-php-ext-install opcache \
-    && requirementsToRemove="libpng-dev libmcrypt-dev libcurl3-dev libfreetype6-dev libjpeg-turbo8-dev" \
+    && docker-php-ext-configure gd \
+      --enable-gd \
+      --with-jpeg \
+      --with-freetype \
+    && docker-php-ext-install -j$(nproc) gd \
+    && docker-php-ext-install -j$(nproc) pdo_mysql \
+    && docker-php-ext-install -j$(nproc) bcmath \
+    && docker-php-ext-install -j$(nproc) mbstring \
+    && docker-php-ext-install -j$(nproc) zip \
+    && docker-php-ext-install -j$(nproc) intl \
+    && docker-php-ext-install -j$(nproc) xsl \
+    && docker-php-ext-install -j$(nproc) soap \
+    && docker-php-ext-install -j$(nproc) opcache \
+    && docker-php-ext-install -j$(nproc) sockets \
+    && requirementsToRemove="libcurl3-dev libfreetype6-dev libpng-dev libjpeg-turbo8-dev" \
     && apt-get purge --auto-remove -y $requirementsToRemove
 
 # Install XDEBUG extension
@@ -28,26 +31,17 @@ RUN requirements="libpng-dev libmcrypt-dev libmcrypt4 libcurl3-dev libfreetype6 
 # https://xdebug.org/download.php
 # confirm => php -m | grep -i xdebug
 RUN set -x \
-    && cd /tmp \
-    && curl -sSL -o xdebug-2.5.5.tgz http://xdebug.org/files/xdebug-2.5.5.tgz \
-    && tar -xf xdebug-2.5.5.tgz \
-    && cd xdebug-2.5.5 \
-    && /usr/local/bin/phpize \
-    && ./configure \
-    && make \
-    && make install \
-    && echo "zend_extension=xdebug.so" > /usr/local/etc/php/conf.d/ext-xdebug.ini \
-    && rm -rf /tmp/xdebug-2.5.5.tgz xdebug-2.5.5.tgz
-
+    && pecl install xdebug-2.9.5 \
+    && docker-php-ext-enable xdebug
 
 # Install memcache extension
 #
 RUN set -x \
     && apt-get update && apt-get install -y --no-install-recommends unzip libssl-dev libpcre3 libpcre3-dev \
     && cd /tmp \
-    && curl -sSL -o php7.zip https://github.com/websupport-sk/pecl-memcache/archive/php7.zip \
+    && curl -sSL -o php7.zip https://github.com/websupport-sk/pecl-memcache/archive/4.0.5.2.zip \
     && unzip php7 \
-    && cd pecl-memcache-php7 \
+    && cd pecl-memcache-4.0.5.2 \
     && /usr/local/bin/phpize \
     && ./configure --with-php-config=/usr/local/bin/php-config \
     && make \
@@ -59,7 +53,6 @@ RUN set -x \
 #
 RUN set -x \
 	&& mkdir /var/www/dev \
-	&& mkdir /var/www/dev/magento2 \
 	&& rm -rf /var/www/html/* \
 	&& mkdir /tmp/magento2 \
 	&& cd /tmp/magento2 \
@@ -67,12 +60,14 @@ RUN set -x \
 	&& echo "$MAGENTO_SHA256 $MAGENTO_VERSION.tar.gz" | sha256sum -c - \
 	&& tar xvf $MAGENTO_VERSION.tar.gz \
 	&& cd .. \
-	&& mv magento2/* magento2/.htaccess /var/www/dev/magento2
+	&& mv magento2 /var/www/dev/ \
+    && mkdir /var/www/dev/magento2/composer_home
 
 # install composer
 #
-RUN curl -sS https://getcomposer.org/installer | php
-RUN mv composer.phar /usr/local/bin/composer
+RUN set -x \
+    && curl -sS https://getcomposer.org/installer | php \
+    && mv composer.phar /usr/local/bin/composer
 
 # install magerun 2
 #
@@ -84,28 +79,37 @@ RUN set -x \
 
 # prepare Mage source
 #
+# add Magento 2 file owner
+#
+# ensure www-data is group 33
+# add new file owner group 1000
+# file owner member of www-data
+#
 COPY ./healthcheck.php /var/www/dev/magento2/
 COPY ./auth.json /var/www/.composer/
+ENV COMPOSER_HOME=/var/www/.composer
 RUN set -x \
-	&& usermod -u 1000 www-data \
-	&& chsh -s /bin/bash www-data
-
-RUN chown -R www-data:www-data /var/www
+    && usermod -u 33 www-data \
+    && adduser --disabled-password --gecos '' magento \
+    && usermod -u 1000 magento \
+    && usermod -a -G www-data magento \
+    && chown -R magento:www-data /var/www
 
 # composer
-RUN chsh -s /bin/bash www-data
-RUN su www-data -c "cd /var/www/dev/magento2 && composer install"
+RUN chsh -s /bin/bash magento \
+    && su magento -c "cd /var/www/dev/magento2 && composer install"
 
 # php RedisAdmin
 # https://github.com/erikdubbelboer/phpRedisAdmin
 #
-RUN su www-data -c "cd /var/www/dev && composer create-project -s dev erik-dubbelboer/php-redis-admin /var/www/dev/phpRedisAdmin"
+RUN su magento -c "cd /var/www/dev && composer create-project -s dev erik-dubbelboer/php-redis-admin /var/www/dev/phpRedisAdmin"
 
 # Magento DEVELOPMENT permissions (this may take a while...)
 #
 RUN set -x \
     && cd /var/www/dev/magento2 \
-    && find var vendor pub/static pub/media app/etc -type f -exec chmod g+w {} \; && find var vendor pub/static pub/media app/etc -type d -exec chmod g+ws {} \; && chmod u+x bin/magento
+    && rm -rf ./generated/metadata/* ./generated/code/* ./pub/static/* ./var/cache/* ./var/page_cache/* ./var/view_preprocessed/* ./var/log/* \
+    && find var generated vendor pub/static pub/media app/etc -type f -exec chmod g+w {} \; && find var generated vendor pub/static pub/media app/etc -type d -exec chmod g+ws {} \; && chmod u+x bin/magento
 
 # scripts
 #

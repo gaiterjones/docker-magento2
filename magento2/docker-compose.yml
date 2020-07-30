@@ -97,7 +97,7 @@ services:
         depends_on:
             - php-apache
     varnish:
-        build: ./varnish/varnish5-2
+        build: ./varnish/varnish6
         hostname: varnish
         domainname: "${APPDOMAIN}"
         #expose:
@@ -112,7 +112,7 @@ services:
            - php-apache
         volumes:
           - "${CONTAINERDATA}/${PROJECT_NAME}/data:/home/data"
-          - ./varnish/varnish52.vcl:/etc/varnish/default.vcl
+          - ./varnish/varnish6.vcl:/etc/varnish/default.vcl
           - ./varnish/varnish.secret:/etc/varnish/secret
         environment:
           - CACHE_SIZE=64M
@@ -134,7 +134,8 @@ services:
           - "${CONTAINERDATA}/${PROJECT_NAME}/data:/home/data"
 
     mysql:
-        image: mysql:5.7
+        #image: mysql:5.7
+        image: mysql:8.0.21
         hostname: mysql
         domainname: "${APPDOMAIN}"
         volumes:

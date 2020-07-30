@@ -1,26 +1,27 @@
-FROM gaiterjones/phusion1100-apache2-php7-2:25
+FROM gaiterjones/phusion1100-apache2-php7-4:7
 LABEL maintainer="paj@gaiterjones.com"
 LABEL service "Magento 2 MANAGER Production Service"
 
-ENV CREATION_DATE 15022020
+ENV CREATION_DATE 29072020
 
 # dependencies
-# remove mcrpyt for > php 7.2 ?
-RUN requirements="libpng-dev libmcrypt-dev libmcrypt4 libcurl3-dev libfreetype6 libjpeg-turbo8 libjpeg-turbo8-dev libfreetype6-dev libicu-dev libxslt1-dev msmtp nano git" \
+RUN requirements="libonig-dev libzip-dev libpng-dev libcurl3-dev zlib1g-dev libpng-dev libjpeg-turbo8 libjpeg-turbo8-dev libfreetype6 libfreetype6-dev libicu-dev libxslt1-dev msmtp nano git" \
     && apt-get update && apt-get install -y $requirements && rm -rf /var/lib/apt/lists/* \
-    && docker-php-ext-install pdo_mysql \
-    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install gd \
-    && pecl install mcrypt-1.0.2 \
-    && docker-php-ext-enable mcrypt \
-    && docker-php-ext-install bcmath \
-    && docker-php-ext-install mbstring \
-    && docker-php-ext-install zip \
-    && docker-php-ext-install intl \
-    && docker-php-ext-install xsl \
-    && docker-php-ext-install soap \
-    && docker-php-ext-install opcache \
-    && requirementsToRemove="libpng-dev libmcrypt-dev libcurl3-dev libpng12-dev libfreetype6-dev libjpeg-turbo8-dev" \
+    && docker-php-ext-configure gd \
+      --enable-gd \
+      --with-jpeg \
+      --with-freetype \
+    && docker-php-ext-install -j$(nproc) gd \
+    && docker-php-ext-install -j$(nproc) pdo_mysql \
+    && docker-php-ext-install -j$(nproc) bcmath \
+    && docker-php-ext-install -j$(nproc) mbstring \
+    && docker-php-ext-install -j$(nproc) zip \
+    && docker-php-ext-install -j$(nproc) intl \
+    && docker-php-ext-install -j$(nproc) xsl \
+    && docker-php-ext-install -j$(nproc) soap \
+    && docker-php-ext-install -j$(nproc) opcache \
+    && docker-php-ext-install -j$(nproc) sockets \
+    && requirementsToRemove="libcurl3-dev libfreetype6-dev libpng-dev libjpeg-turbo8-dev" \
     && apt-get purge --auto-remove -y $requirementsToRemove
 
 # MYSQLI for PAJ/APPLICATIONS
@@ -37,9 +38,9 @@ RUN apt-get update && apt-get -yq install \
 RUN set -x \
     && apt-get update && apt-get install -y --no-install-recommends unzip libssl-dev libpcre3 libpcre3-dev \
     && cd /tmp \
-    && curl -sSL -o php7.zip https://github.com/websupport-sk/pecl-memcache/archive/php7.zip \
+    && curl -sSL -o php7.zip https://github.com/websupport-sk/pecl-memcache/archive/4.0.5.2.zip \
     && unzip php7 \
-    && cd pecl-memcache-php7 \
+    && cd pecl-memcache-4.0.5.2 \
     && /usr/local/bin/phpize \
     && ./configure --with-php-config=/usr/local/bin/php-config \
     && make \

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+if [ -f /var/www/dev/magento2/var/composer_home/auth.json ]; then
+    rm /var/www/dev/magento2/var/composer_home/auth.json
+    ln -s /var/www/.composer/auth.json /var/www/dev/magento2/var/composer_home/
+fi
+if [ ! -f /var/www/dev/magento2/var/composer_home/auth.json ]; then
+    ln -s /var/www/.composer/auth.json /var/www/dev/magento2/var/composer_home/
+fi
+/var/www/dev/magento2/bin/magento sampledata:deploy
+/var/www/dev/magento2/bin/magento setup:upgrade
