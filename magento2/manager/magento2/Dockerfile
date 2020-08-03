@@ -103,7 +103,7 @@ RUN set -x \
     && tar -xvf docker-latest.tar \
     && mv /tmp/docker/docker /usr/local/bin \
     && rm -rf /tmp/docker docker-latest.tar \
-    && addgroup --gid 996 docker \
+    && addgroup --gid 998 docker \
     && usermod -aG docker www-data \
     && usermod -aG docker magento
 
