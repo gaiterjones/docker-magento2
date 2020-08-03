@@ -100,8 +100,8 @@ class Varnish
 				//
 				$_varnishVCLUpdateConfig = "";
 
-				//$_probe_file = "/healtchcheck.php";
-				$_probe_file = "/health_check.php";
+				//$_probe_file = "/health_check.php";
+				$_probe_file = "/pub/health_check.php";
 				$_timeout="60";
 				$_interval="120";
 				$_window="10";

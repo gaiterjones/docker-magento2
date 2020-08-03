@@ -9,9 +9,9 @@ services:
         hostname: manager
         domainname: "${APPDOMAIN}"
         volumes:
-            - "${CONTAINERDATA}/${PROJECT_NAME}/www:/var/www"
+            #- "${CONTAINERDATA}/${PROJECT_NAME}/www:/var/www"
             - "${CONTAINERDATA}/${PROJECT_NAME}/data:/home/data"
-            #- "${MANAGERDEV}:/var/www/dev"
+            - "${MANAGERDEV}:/var/www/dev"
             - /var/run/docker.sock:/var/run/docker.sock
             - ./varnish/varnish.secret:/etc/varnish/secret
         networks:
@@ -50,7 +50,7 @@ services:
         #   - "3000:3000"
         #   - "3001:3001"
         volumes:
-            - "${CONTAINERDATA}/${PROJECT_NAME}/www:/var/www"
+            #- "${CONTAINERDATA}/${PROJECT_NAME}/www:/var/www"
             - "${CONTAINERDATA}/${PROJECT_NAME}/data:/home/data"
             #- "${CONTAINERDATA}/${PROJECT_NAME}/logs:/var/www/logs"
         networks:
