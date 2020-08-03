@@ -42,7 +42,7 @@ http://magento2.dev.com
 
 https://blog.gaiterjones.com/docker-magento-2-development-deployment-php7-apache2-4-redis-varnish-scaleable/ for further deployment instructions.
 
-![MAGENTO2 INSTALL](https://blog.gaiterjones.com/dropbox/docker-install-magento240a.gif)
+![MAGENTO2 INSTALL](https://blog.gaiterjones.com/dropbox/docker-install-magento240.gif)
 
 for PHP 7.1.32 use gaiterjones/magento2:2.3.0_PHP7.1  
 for PHP 7.3 use gaiterjones/magento2:2.3.5  
