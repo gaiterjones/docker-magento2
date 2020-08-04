@@ -1,5 +1,4 @@
-# MAGENTO2 DOCKER
-# PHP7/APACHE PHUSION container
+# MAGENTO2 DOCKER development/production containers
 #
 version: "3.1"
 
@@ -16,6 +15,7 @@ services:
             - ./varnish/varnish.secret:/etc/varnish/secret
         networks:
             - wwwserver
+            - database
             #- proxy_server
         environment:
             SCALE_MANAGER_PROJECTNAME: "${PROJECT_NAME}"
