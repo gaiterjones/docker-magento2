@@ -1,4 +1,7 @@
-# MAGENTO2 DOCKER development/production containers
+# MAGENTO2
+# PHUSION PHP7/APACHE REDIS MYSQL VARNISH PHPMYADMIN ELASTICSEARCH
+# https://github.com/gaiterjones/docker-magento2
+#
 #
 version: "3.1"
 
@@ -116,6 +119,7 @@ services:
           - ./varnish/varnish.secret:/etc/varnish/secret
         environment:
           - CACHE_SIZE=64M
+          - VARNISH_LOGGING_ENABLED=true
 
     elasticsearch:
         build: ./elasticsearch

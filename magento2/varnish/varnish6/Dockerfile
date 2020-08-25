@@ -1,5 +1,5 @@
 FROM varnish:6.4
-
+# https://github.com/varnish/docker-varnish/tree/master/stable/debian
 LABEL maintainer="paj@gaiterjones.com"
 LABEL service="varnish"
 LABEL version="6.4"
@@ -35,14 +35,10 @@ ENV VARNISH_DAEMON_OPTIONS ${VARNISH_DAEMON_OPTIONS:-"-p connect_timeout=300 -p 
 ARG VARNISH_CONTAINER_LOG_TYPE
 ENV VARNISH_CONTAINER_LOG_TYPE ${VARNISH_LOG_TYPE:-"varnishncsa"}
 
-# ARG VARNISHNCSA_LOG_OPTIONS
-# ENV VARNISHNCSA_LOG_OPTIONS ${VARNISHNCSA_LOG_OPTIONS:-'"%t - %{%Y-%m-%d}t - %{%H:%M:%S}t - %{X-Forwarded-For}i - %h - %r - %s - %b - %T - %D - %{Varnish:time_firstbyte}x - %{Varnish:handling}x - %{Referer}i - %{User-agent}i"'}
-
 WORKDIR /etc/varnish
 
-COPY ./start.sh /usr/bin/varnish-start.sh
-
-ENTRYPOINT ["docker-varnish-entrypoint"]
 EXPOSE 80
-
-CMD "/usr/bin/varnish-start.sh"
+#ENTRYPOINT ["docker-varnish-entrypoint"]
+COPY ./start.sh /usr/bin/varnish-start.sh
+RUN chmod +x /usr/bin/varnish-start.sh
+ENTRYPOINT "/usr/bin/varnish-start.sh"
