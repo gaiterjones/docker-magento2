@@ -44,15 +44,18 @@ acl purge {
 
 sub vcl_recv {
 
-    # Bypass scale manager page
-    if (req.url ~ "/scale-manager") {
-        return (pass);
-    }
+#CUSTOM VCL START
 
-    # Bypass Magento2FacebookStoreFront storefront
-    if (req.url ~ "/Magento2FacebookStoreFront") {
-        return (pass);
-    }
+# https://github.com/magento/magento2/issues/24353
+# https://github.com/magento/magento2/issues/3897
+if (req.restarts > 0) { set req.hash_always_miss = true; }
+
+# Bypass scale manager page
+if (req.url ~ "/scale-manager") {
+    return (pass);
+}
+
+#CUSTOM VCL END
 
     if (req.method == "PURGE") {
         if (client.ip !~ purge) {
