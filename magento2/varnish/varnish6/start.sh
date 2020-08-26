@@ -8,7 +8,6 @@ startVarnish() {
     -a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT} \
     -T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT} \
     -t $VARNISH_TTL \
-    -p feature=+http2 \
     -s $VARNISH_STORAGE \
     $VARNISH_DAEMON_OPTIONS
 }
@@ -19,7 +18,6 @@ startVarnishWithLogging() {
     -a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT} \
     -T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT} \
     -t $VARNISH_TTL \
-    -p feature=+http2 \
     -s $VARNISH_STORAGE \
     $VARNISH_DAEMON_OPTIONS
 
