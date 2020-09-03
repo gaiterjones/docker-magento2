@@ -73,20 +73,18 @@ COPY ./php/php.ini /usr/local/etc/php/conf.d/php.ini
 COPY ./apache/apache2.conf /etc/apache2/apache2.conf
 COPY ./apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 COPY ./apache/remoteip.conf /etc/apache2/conf-available/remoteip.conf
-COPY ./php/msmtprc /etc/msmtprc
 COPY ./apache/.htpasswd /etc/apache2/.htpasswd
 COPY ./phpRedisAdmin_config.inc.php /var/www/dev/phpRedisAdmin/includes/config.inc.php
 
 # msmtprc smtp config
 #
+COPY ./php/msmtprc /usr/local/etc/msmtprc
 ARG APPDOMAIN
 ARG SMTP
 RUN set -x \
-	&& sed -i "s/XMAILHOSTX/$SMTP/g" /etc/msmtprc \
-	&& sed -i "s/XMAILDOMAINX/$APPDOMAIN/g" /etc/msmtprc \
-	&& chmod 0644 /etc/msmtprc \
-	&& touch /var/log/msmtp.log \
-	&& chmod 777 /var/log/msmtp.log
+	&& sed -i "s/XMAILHOSTX/$SMTP/g" /usr/local/etc/msmtprc \
+	&& sed -i "s/XMAILDOMAINX/$APPDOMAIN/g" /usr/local/etc/msmtprc \
+	&& cat /usr/local/etc/msmtprc
 
 # enable mods and sites
 #
@@ -108,6 +106,14 @@ RUN set -x \
     && addgroup --gid 998 docker \
     && usermod -aG docker www-data \
     && usermod -aG docker magento
+
+# Uncomment for Magepack
+#RUN set -x \
+#    && cd /tmp \
+#    && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+#    && apt-get install -y nodejs gconf-service libasound2 libatk1.0-0 libatk-bridge2.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget \
+#    && npm install -g magepack  --unsafe-perm=true --allow-root \
+#    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # log rotate for Magento2
 COPY ./logrotate /etc/logrotate.d/magento2

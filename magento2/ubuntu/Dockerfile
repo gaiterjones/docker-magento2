@@ -19,13 +19,13 @@ RUN set -x \
 
 # msmtprc smtp config
 #
-COPY ./php/msmtprc /etc/msmtprc
+COPY ./php/msmtprc /usr/local/etc/msmtprc
 ARG APPDOMAIN
 ARG SMTP
 RUN set -x \
-	&& sed -i "s/XMAILHOSTX/$SMTP/g" /etc/msmtprc \
-	&& sed -i "s/XMAILDOMAINX/$APPDOMAIN/g" /etc/msmtprc \
-	&& cat /etc/msmtprc
+	&& sed -i "s/XMAILHOSTX/$SMTP/g" /usr/local/etc/msmtprc \
+	&& sed -i "s/XMAILDOMAINX/$APPDOMAIN/g" /usr/local/etc/msmtprc \
+	&& cat /usr/local/etc/msmtprc
 
 COPY ./apache/apache2.conf /etc/apache2/apache2.conf
 COPY ./apache/000-default.conf /etc/apache2/sites-available/000-default.conf

@@ -7,7 +7,7 @@ ENV MAGENTO_VERSION 2.4.0
 ENV MAGENTO_SHA256 7f8e13412103b8f63979fff353fefb3d6475296bd76a1f4f4407c76706f9d9a5
 
 # dependencies
-RUN requirements="libonig-dev libzip-dev libpng-dev libcurl3-dev zlib1g-dev libpng-dev libjpeg-turbo8 libjpeg-turbo8-dev libfreetype6 libfreetype6-dev libicu-dev libxslt1-dev msmtp nano git" \
+RUN requirements="libgnutls28-dev libonig-dev libzip-dev libpng-dev libcurl3-dev zlib1g-dev libpng-dev libjpeg-turbo8 libjpeg-turbo8-dev libfreetype6 libfreetype6-dev libicu-dev libxslt1-dev nano git" \
     && apt-get update && apt-get install -y $requirements && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-configure gd \
       --enable-gd \
@@ -48,6 +48,22 @@ RUN set -x \
     && make install \
     && echo "extension=memcache.so" > /usr/local/etc/php/conf.d/ext-memcache.ini \
     && rm -rf /tmp/pecl-memcache-php7 php7.zip
+
+# Install msmtp
+# CAUTION : requires libgnutls28-dev for TLS
+RUN set -x \
+    && cd /tmp \
+    && curl -sSL -o msmtp.tar https://marlam.de/msmtp/releases/msmtp-1.8.12.tar.xz \
+    && tar -xvf msmtp.tar \
+    && cd msmtp-1.8.12 \
+    && ./configure \
+    && make \
+    && make install \
+    && rm -rf /tmp/msmtp-1.8.12 msmtp.tar \
+    && touch /var/log/msmtp.log \
+    && touch /usr/local/etc/msmtprc \
+    && chmod 0644 /usr/local/etc/msmtprc \
+    && chmod 777 /var/log/msmtp.log
 
 # get magento 2 and extract
 #
