@@ -17,7 +17,7 @@ Docker containers for Magento 2.4.x development including :
 
 ## Installation
 
-1. git clone https://github.com/gaiterjones/docker-magento2-2  
+1. git clone https://github.com/gaiterjones/docker-magento2  
 2. EDIT .env  
 3. docker-compose build
 4. docker-compose up -d   
