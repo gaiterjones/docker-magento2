@@ -29,7 +29,9 @@ Docker containers for Magento 2.4.x development including :
 
     docker exec -i -t --user magento magento2_php-apache_1 install-magento
 
+7. Disable 2FA for testing
 
+    docker exec -i -t --user magento magento2_php-apache_1 bin/magento module:disable Magento_TwoFactorAuth
 
 ## Test
 
