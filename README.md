@@ -1,6 +1,6 @@
 
 
-# Docker Magento 2.4.X Open Source (CE) 07-2020
+# Docker Magento 2.4.X Open Source (CE) 10-2020
 
 Docker containers for Magento 2.4.x development including :
 
@@ -39,7 +39,9 @@ Docker containers for Magento 2.4.x development including :
 http://magento2.dev.com/admin  
  - Frontend
 http://magento2.dev.com   
-
+ - CLI
+ docker exec -i -t --user magento magento2_php-apache_1 /bin/bash
+ 
 ### More
 
 https://blog.gaiterjones.com/docker-magento-2-development-deployment-php7-apache2-4-redis-varnish-scaleable/ for further deployment instructions.
@@ -48,4 +50,4 @@ https://blog.gaiterjones.com/docker-magento-2-development-deployment-php7-apache
 
 for PHP 7.1.32 use gaiterjones/magento2:2.3.0_PHP7.1  
 for PHP 7.3 use gaiterjones/magento2:2.3.5  
-for PHP 7.4 use gaiterjones/magento2:2.4.0
+for PHP 7.4 use gaiterjones/magento2:2.4.1
