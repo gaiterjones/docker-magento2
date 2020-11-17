@@ -63,11 +63,9 @@ RUN set -x \
 	&& mv magento2 /var/www/dev/ \
     && mkdir /var/www/dev/magento2/composer_home
 
-# install composer
+# install composer v1
 #
-RUN set -x \
-    && curl -sS https://getcomposer.org/installer | php \
-    && mv composer.phar /usr/local/bin/composer
+RUN set -x && curl -L -o composer.phar https://getcomposer.org/composer-1.phar && chmod +x composer.phar && mv composer.phar /usr/local/bin/composer
 
 # install magerun 2
 #
