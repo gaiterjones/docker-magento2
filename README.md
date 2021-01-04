@@ -1,6 +1,6 @@
 
 
-# Docker Magento 2.4.X Open Source (CE) 10-2020
+# Docker Magento 2.4.X Open Source (CE) 01-2021
 
 Docker containers for Magento 2.4.x development including :
 
@@ -41,7 +41,7 @@ http://magento2.dev.com/admin
 http://magento2.dev.com   
  - CLI
  docker exec -i -t --user magento magento2_php-apache_1 /bin/bash
- 
+
 ### More
 
 https://blog.gaiterjones.com/docker-magento-2-development-deployment-php7-apache2-4-redis-varnish-scaleable/ for further deployment instructions.
