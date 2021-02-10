@@ -1,11 +1,11 @@
-FROM gaiterjones/phusion1100-apache2-php7-4:7
+FROM gaiterjones/phusion1100-apache2-php7-4:14
 LABEL maintainer="paj@gaiterjones.com"
 LABEL service "Magento 2 MANAGER Production Service"
 
-ENV CREATION_DATE 29072020
+ENV CREATION_DATE 10022021
 
 # dependencies
-RUN requirements="libonig-dev libzip-dev libpng-dev libcurl3-dev zlib1g-dev libpng-dev libjpeg-turbo8 libjpeg-turbo8-dev libfreetype6 libfreetype6-dev libicu-dev libxslt1-dev msmtp nano git" \
+RUN requirements="libsodium-dev libonig-dev libzip-dev libpng-dev libcurl3-dev zlib1g-dev libpng-dev libjpeg-turbo8 libjpeg-turbo8-dev libfreetype6 libfreetype6-dev libicu-dev libxslt1-dev msmtp nano git" \
     && apt-get update && apt-get install -y $requirements && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-configure gd \
       --enable-gd \
@@ -21,6 +21,7 @@ RUN requirements="libonig-dev libzip-dev libpng-dev libcurl3-dev zlib1g-dev libp
     && docker-php-ext-install -j$(nproc) soap \
     && docker-php-ext-install -j$(nproc) opcache \
     && docker-php-ext-install -j$(nproc) sockets \
+    && docker-php-ext-install -j$(nproc) sodium \
     && requirementsToRemove="libcurl3-dev libfreetype6-dev libpng-dev libjpeg-turbo8-dev" \
     && apt-get purge --auto-remove -y $requirementsToRemove
 
