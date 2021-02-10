@@ -1,12 +1,11 @@
 
-
-# Docker Magento 2.4.X Open Source (CE) 01-2021
+# Docker Magento 2.4.X Open Source (CE) 02-2021
 
 Docker containers for Magento 2.4.x development including :
 
   - PHP 7.4
   - Apache 2.4
-  - MYSQL 5.7 / 8
+  - MYSQL 8
   - Varnish 6 FPC  
   - RabbitMQ  
   - PhpMyAdmin
@@ -18,20 +17,20 @@ Docker containers for Magento 2.4.x development including :
 ## Installation
 
 1. git clone https://github.com/gaiterjones/docker-magento2  
-2. EDIT .env  
-3. docker-compose build
-4. docker-compose up -d   
+2. EDIT .env - **add your Magento authentication keys**  
+3. `docker-compose build`
+4. `docker-compose up -d`   
 5. Install sample data
 
-    docker exec -i -t --user magento magento2_php-apache_1 install-sampledata  
+docker exec -i -t --user magento magento2_php-apache_1 install-sampledata  
 
 6. Install Magento
 
-    docker exec -i -t --user magento magento2_php-apache_1 install-magento
+docker exec -i -t --user magento magento2_php-apache_1 install-magento
 
 7. Disable 2FA for testing
 
-    docker exec -i -t --user magento magento2_php-apache_1 bin/magento module:disable Magento_TwoFactorAuth
+docker exec -i -t --user magento magento2_php-apache_1 bin/magento module:disable Magento_TwoFactorAuth
 
 ## Test
 
@@ -40,7 +39,9 @@ http://magento2.dev.com/admin
  - Frontend
 http://magento2.dev.com   
  - CLI
- docker exec -i -t --user magento magento2_php-apache_1 /bin/bash
+
+
+    docker exec -i -t --user magento magento2_php-apache_1 /bin/bash
 
 ### More
 
@@ -48,6 +49,6 @@ https://blog.gaiterjones.com/docker-magento-2-development-deployment-php7-apache
 
 ![MAGENTO2 INSTALL](https://blog.gaiterjones.com/dropbox/docker-install-magento240.gif)
 
-for PHP 7.1.32 use gaiterjones/magento2:2.3.0_PHP7.1  
+
 for PHP 7.3 use gaiterjones/magento2:2.3.5  
 for PHP 7.4 use gaiterjones/magento2:2.4.1
