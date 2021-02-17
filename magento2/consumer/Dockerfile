@@ -47,11 +47,20 @@ RUN usermod -u 1000 magento
 # file owner member of www-data
 RUN usermod -a -G www-data magento
 
-# mstmp for email relay
+# msmtprc smtp config
+#
 RUN apk --update --no-cache add \
 	msmtp
 COPY ./conf/msmtprc /etc/msmtprc
-RUN chown magento /etc/msmtprc && chmod 600 /etc/msmtprc && touch /var/log/msmtp.log && chmod 777 /var/log/msmtp.log
+ARG APPDOMAIN
+ARG SMTP
+RUN set -x \
+	&& sed -i "s/XMAILHOSTX/$SMTP/g" /etc/msmtprc \
+	&& sed -i "s/XMAILDOMAINX/$APPDOMAIN/g" /etc/msmtprc \
+	&& chmod 0644 /etc/msmtprc \
+	&& chown magento /etc/msmtprc \
+	&& touch /var/log/msmtp.log \
+	&& chmod 777 /var/log/msmtp.log
 
 #RUN cat /etc/group
 COPY ./conf/php.ini /usr/local/etc/php/php.ini
