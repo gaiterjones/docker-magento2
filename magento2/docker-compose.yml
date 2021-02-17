@@ -91,6 +91,9 @@ services:
     #    hostname: devshop_consumer1
     #    build:
     #        context: ./consumer/
+    #        args:
+    #            SMTP: "${SMTP}"
+    #            APPDOMAIN: "${APPDOMAIN}"
     #    volumes:
     #        - "${CONTAINERDATA}/${PROJECT_NAME}/dev1/www/dev/magento2:/var/www/dev/magento2"
     #    networks:
