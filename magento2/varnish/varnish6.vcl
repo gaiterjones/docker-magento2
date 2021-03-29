@@ -55,6 +55,10 @@ if (req.url ~ "/scale-manager") {
     return (pass);
 }
 
+# USE X-REAL-IP as X-FORWARDED-FOR header
+if(req.http.X-Real-IP) {
+    set req.http.X-Forwarded-For = req.http.X-Real-IP;
+}
 #CUSTOM VCL END
 
     if (req.method == "PURGE") {
