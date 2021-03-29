@@ -1,5 +1,6 @@
 # MAGENTO2
-# PHUSION PHP7/APACHE REDIS MYSQL VARNISH PHPMYADMIN ELASTICSEARCH
+# PHUSION PHP7/APACHE REDIS MYSQL VARNISH PHPMYADMIN ELASTICSEARCH RABBITMQ
+#
 # https://github.com/gaiterjones/docker-magento2
 #
 #
@@ -85,6 +86,26 @@ services:
             - 15672
             - 5672
             - 5673
+
+    #consumer1:
+    #    hostname: devshop_consumer1
+    #    build:
+    #        context: ./consumer/
+    #        args:
+    #            SMTP: "${SMTP}"
+    #            APPDOMAIN: "${APPDOMAIN}"
+    #    volumes:
+    #        - "${CONTAINERDATA}/${PROJECT_NAME}/dev1/www/dev/magento2:/var/www/dev/magento2"
+    #    networks:
+    #        - wwwserver
+    #        - database
+    #    depends_on:
+    #        - mysql
+    #        - rabbitmq
+    #    restart: always
+    #    entrypoint: ["/usr/local/start_consumer.sh"]
+    #    environment:
+    #      - CONSUMER_WHITELIST=true
 
     redis_session:
         build: ./redis/session/
