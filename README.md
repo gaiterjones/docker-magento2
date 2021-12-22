@@ -1,5 +1,5 @@
 
-# Docker Magento 2.4.X Open Source (CE) 02-2021
+# Docker Magento 2.4.X Open Source (CE) 01-2022
 
 Docker containers for Magento 2.4.x development including :
 

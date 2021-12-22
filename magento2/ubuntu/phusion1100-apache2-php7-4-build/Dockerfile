@@ -47,9 +47,9 @@ ENV PHP_EXTRA_CONFIGURE_ARGS --with-apxs2
 ENV GPG_KEYS 5A52880781F755608BF815FC910DEB46F53EA312 42670A7FE4D0441C8E4632349E4FDC074A4EF02D
 
 # http://php.net/releases/
-ENV PHP_VERSION 7.4.14
-ENV PHP_FILENAME php-7.4.14.tar.xz
-ENV PHP_SHA256 f9f3c37969fcd9006c1dbb1dd76ab53f28c698a1646fa2dde8547c3f45e02886
+ENV PHP_VERSION 7.4.27
+ENV PHP_FILENAME php-7.4.27.tar.xz
+ENV PHP_SHA256 3f8b937310f155822752229c2c2feb8cc2621e25a728e7b94d0d74c128c43d0c
 
 RUN set -xe \
 	&& buildDeps=" \
@@ -68,7 +68,7 @@ RUN set -xe \
 	&& curl -fSL "http://php.net/get/$PHP_FILENAME.asc/from/this/mirror" -o "$PHP_FILENAME.asc" \
 	&& export GNUPGHOME="$(mktemp -d)" \
 	&& for key in $GPG_KEYS; do \
-		gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
+		gpg --keyserver keyserver.bazon.ru --recv-keys "$key"; \
 	done \
 	&& gpg --batch --verify "$PHP_FILENAME.asc" "$PHP_FILENAME" \
 	&& rm -r "$GNUPGHOME" "$PHP_FILENAME.asc" \

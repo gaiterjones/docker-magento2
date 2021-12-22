@@ -13,7 +13,7 @@ backend apache_1 {
     .port = "80";
     .first_byte_timeout = 180s;
 	.probe = {
-	    .request =  "GET /pub/health_check.php HTTP/1.1"
+	    .request =  "GET /health_check.php HTTP/1.1"
 	                "Host: magento2.dev.com"
 	                "Connection: close"
 	                "Accept: text/html" ;
