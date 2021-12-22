@@ -43,6 +43,7 @@ http://magento2.dev.com
 
     docker exec -i -t --user magento magento2_php-apache_1 /bin/bash
 
+to fix layout issues with demo data : docker exec -i -t --user magento magento2_php-apache_1  cp /var/www/dev/magento2/vendor/magento/module-cms-sample-data/fixtures/styles.css /var/www/dev/magento2/pub/media/
 ### More
 
 https://blog.gaiterjones.com/docker-magento-2-development-deployment-php7-apache2-4-redis-varnish-scaleable/ for further deployment instructions.
