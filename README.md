@@ -22,15 +22,15 @@ Docker containers for Magento 2.4.x development including :
 4. `docker-compose up -d`   
 5. Install sample data
 
-docker exec -i -t --user magento magento2_php-apache_1 install-sampledata  
+docker-compose exec -u magento php-apache install-sampledata  
 
 6. Install Magento
 
-docker exec -i -t --user magento magento2_php-apache_1 install-magento
+docker-compose exec -u magento php-apache install-magento
 
 7. Disable 2FA for testing
 
-docker exec -i -t --user magento magento2_php-apache_1 bin/magento module:disable Magento_TwoFactorAuth
+docker-compose exec -u magento php-apache bin/magento module:disable Magento_TwoFactorAuth
 
 ## Test
 
@@ -41,7 +41,7 @@ http://magento2.dev.com
  - CLI
 
 
-    docker exec -i -t --user magento magento2_php-apache_1 /bin/bash
+    docker-compose exec -u magento php-apache bash
 
 to fix layout issues with demo data : docker exec -i -t --user magento magento2_php-apache_1  cp /var/www/dev/magento2/vendor/magento/module-cms-sample-data/fixtures/styles.css /var/www/dev/magento2/pub/media/
 ### More
