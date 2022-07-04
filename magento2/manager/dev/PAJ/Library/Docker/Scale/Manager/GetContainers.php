@@ -1,7 +1,7 @@
 <?php
 /**
  *
- *  Copyright (C) 2017 paj@gaiterjones.com
+ *  Copyright (C) 2022 paj@gaiterjones.com
  */
 
 namespace PAJ\Library\Docker\Scale\Manager;
@@ -18,7 +18,7 @@ class GetContainers
 
 		if ($_containers) {
 
-			$_now = new \DateTime(null, new \DateTimeZone('Europe/London'));
+			$_now = new \DateTime('now', new \DateTimeZone('Europe/London'));
 
 			$_headerData=array('project','name','state','status');
 
@@ -42,7 +42,7 @@ class GetContainers
 		// CLI get live data from curl
 		//
 		$_execCmd="curl -sS --unix-socket /var/run/docker.sock http://v1.24/containers/json";
-		$_exec = exec($_execCmd,$_output, $_status);		
+		$_exec = exec($_execCmd,$_output, $_status);
 
 		if (0 === $_status) {
 
@@ -78,7 +78,7 @@ class GetContainers
 
 		$_containers=$this->MultiSort($_containers, $_sortCriteria, true);
 
-		$_dt = new \DateTime(null, new \DateTimeZone('Europe/London'));
+		$_dt = new \DateTime('now', new \DateTimeZone('Europe/London'));
 		$_dt->setTimestamp($_psJsonDataLastModified);
 
 		return array(
