@@ -1,4 +1,4 @@
-FROM gaiterjones/magento2:2.4.3
+FROM gaiterjones/magento2:2.4.4
 LABEL maintainer "paj@gaiterjones.com"
 LABEL service "Magento 2 PHP-APACHE Service"
 # ------------------------------------------------------------------
@@ -44,9 +44,9 @@ RUN export PATH=$PATH:/var/www/dev/magento2/bin
 
 # DISABLE XDEBUG
 # https://stackoverflow.com/questions/8754826/how-to-disable-xdebug
-RUN cd /usr/local/etc/php/conf.d \
-	&& mkdir disabled \
-	&& mv docker-php-ext-xdebug.ini disabled
+#RUN cd /usr/local/etc/php/conf.d \
+#	&& mkdir disabled \
+#	&& mv docker-php-ext-xdebug.ini disabled
 
 # cron job
 #

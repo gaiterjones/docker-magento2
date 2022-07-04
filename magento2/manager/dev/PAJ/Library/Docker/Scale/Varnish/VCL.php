@@ -1,12 +1,12 @@
 <?php
 /**
  *
- *  Copyright (C) 2017 paj@gaiterjones.com
+ *  Copyright (C) 2022 paj@gaiterjones.com
  *
- *   https://github.com/yzprofile/ngx_http_dyups_module
  */
 
 namespace PAJ\Library\Docker\Scale\Varnish;
+use PAJ\Library\Docker\Scale\Varnish\Admin\VarnishAdminSocket;
 
 //
 // Class to get and set varnish vcl
@@ -17,11 +17,15 @@ class VCL
 
 	public function __construct($_host) {
 
-		$this->__varnish = new VarnishAdminSocket(array(
-			'host' => $_host,
-			'auth_secret' => file_get_contents("/etc/varnish/secret"),
-			'version' => '4.1'
-		));
+		$this->__varnish = new VarnishAdminSocket($_host);
+		$this->__varnish->setSecret(file_get_contents("/etc/varnish/secret"));
+		$this->__varnish->connect();
+
+		//$this->__varnish = new VarnishAdminSocket(array(
+		//	'host' => $_host,
+		//	'auth_secret' => file_get_contents("/etc/varnish/secret"),
+		//	'version' => '4'
+		//));
 	}
 
 	public function updateVCL($_config)
@@ -44,15 +48,15 @@ class VCL
 		//
 		$_vclName = 'scalemanager_' . time();
 
-		$this->__varnish->vcl_inline($_vclName, trim($_newVCL));
+		$this->__varnish->exec('vcl.inline '. $_vclName. ' << EOF'.PHP_EOL. trim($_newVCL).PHP_EOL.'EOF');
 
 		sleep(1);
 
-		$this->__varnish->vcl_use($_vclName);
+		$this->__varnish->exec('vcl.use '. $_vclName);
 
 		// remove all VCL except the last one
 		//
-		$_vcls = $this->__varnish->vcl_list();
+		$_vcls = $this->__varnish->exec('vcl.list');
 
 		if ($_vcls["code"] == VarnishAdminSocket::CODE_OK)
 		{
@@ -64,7 +68,7 @@ class VCL
 
 			$_vcl_to_remove = explode(" ", $_vcl_to_remove);
 			$_vcl_to_remove = $_vcl_to_remove[sizeof($_vcl_to_remove) - 1];
-			$this->__varnish->vcl_discard($_vcl_to_remove);
+			$this->__varnish->exec('vcl.discard '. $_vcl_to_remove);
 
 		  }
 
@@ -76,8 +80,7 @@ class VCL
 
 	public function getVCL()
 	{
-
-		$_vcl = $this->__varnish->vcl_list();
+		$_vcl = $this->__varnish->exec('vcl.list');
 
 		if ($_vcl["code"] != VarnishAdminSocket::CODE_OK) throw new \Exception("Unable to read VCLs from Varnish");
 
@@ -85,7 +88,7 @@ class VCL
 		$_vcl = explode(" ", $_vcl);
 		$_vcl = $_vcl[sizeof($_vcl) - 1];
 
-		$_vcl = $this->__varnish->vcl_show($_vcl);
+		$_vcl = $this->__varnish->exec('vcl.show '.$_vcl);
 
 		if ($_vcl["code"] != VarnishAdminSocket::CODE_OK) throw new \Exception("Unable to read latest VCL from Varnish");
 
@@ -97,7 +100,19 @@ class VCL
 	public function getParam()
 	{
 
-		$_return = $this->__varnish->param_show();
+		$_return = $this->__varnish->exec('param.show');
+
+		if ($_return["code"] != VarnishAdminSocket::CODE_OK) throw new \Exception("Unable to read VCLs from Varnish");
+
+		$_return = $_return["text"];
+
+		return $_return;
+	}
+
+	public function getHelp()
+	{
+
+		$_return = $this->__varnish->exec('help');
 
 		if ($_return["code"] != VarnishAdminSocket::CODE_OK) throw new \Exception("Unable to read VCLs from Varnish");
 
@@ -109,7 +124,7 @@ class VCL
 	public function getBanner()
 	{
 
-		$_return = $this->__varnish->banner();
+		$_return = $this->__varnish->exec('banner');
 
 		if ($_return["code"] != VarnishAdminSocket::CODE_OK) throw new \Exception("Unable to read VCLs from Varnish");
 
@@ -121,7 +136,7 @@ class VCL
 	public function getBackendList()
 	{
 
-		$_return = $this->__varnish->backend_list();
+		$_return = $this->__varnish->exec('backend.list');
 
 		if ($_return["code"] != VarnishAdminSocket::CODE_OK) throw new \Exception("Unable to read VCLs from Varnish");
 

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+if [ -f /var/www/dev/magento2/var/composer_home/auth.json ]; then
+    rm /var/www/dev/magento2/var/composer_home/auth.json
+    ln -s /var/www/.composer/auth.json /var/www/dev/magento2/var/composer_home/
+fi
+if [ ! -f /var/www/dev/magento2/var/composer_home/auth.json ]; then
+    ln -s /var/www/.composer/auth.json /var/www/dev/magento2/var/composer_home/
+fi
+/var/www/dev/magento2/bin/magento setup:install --base-url=$MAGENTO_URL --backend-frontname=admin --language=$MAGENTO_LANGUAGE --timezone=$MAGENTO_TIMEZONE --currency=$MAGENTO_DEFAULT_CURRENCY --db-host=$MYSQL_HOST --db-name=$MYSQL_DATABASE --db-user=$MYSQL_USER --db-password=$MYSQL_PASSWORD --use-secure=0 --base-url-secure=0 --use-secure-admin=0 --admin-firstname=$MAGENTO_ADMIN_FIRSTNAME --admin-lastname=$MAGENTO_ADMIN_LASTNAME --admin-email=$MAGENTO_ADMIN_EMAIL --admin-user=$MAGENTO_ADMIN_USERNAME --admin-password=$MAGENTO_ADMIN_PASSWORD  --search-engine=elasticsearch7 --elasticsearch-host=elasticsearch --elasticsearch-index-prefix=magento2
+/var/www/dev/magento2/bin/magento setup:config:set --http-cache-hosts=varnish:80
+/var/www/dev/magento2/bin/magento deploy:mode:set developer
+/var/www/dev/magento2/bin/magento c:enable

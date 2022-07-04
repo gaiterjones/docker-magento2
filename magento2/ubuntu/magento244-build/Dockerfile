@@ -1,29 +1,30 @@
-FROM gaiterjones/phusion1100-apache2-php7-3:17
+FROM gaiterjones/phusion2204-apache2-php8-1:5
 LABEL maintainer="paj@gaiterjones.com"
 LABEL description="Magento 2 PHP-APACHE Service"
 
-ENV MAGENTO_VERSION 2.3.5-p1
-# sha256sum Magento-Open-Source-2.3.5-p1.tar.gz
-ENV MAGENTO_SHA256 c808d163ecf1a1648038988a62f21f77ff277f6f7f143adf0baa016509520353
+ENV MAGENTO_VERSION 2.4.4
+# sha256sum Magento-Open-Source-2.4.4.tar.gz
+ENV MAGENTO_SHA256 4a420b91510c327e0f22af1701a7033bfab4843b16b67479df09b998b16165cd
 
 # dependencies
-# remove mcrpyt for > php 7.2 ?
-RUN requirements="libzip-dev libpng-dev libmcrypt-dev libmcrypt4 libcurl3-dev libfreetype6 libjpeg-turbo8 libjpeg-turbo8-dev libfreetype6-dev libicu-dev libxslt1-dev msmtp nano git" \
+RUN requirements="libsodium-dev libonig-dev libzip-dev libpng-dev libcurl3-dev zlib1g-dev libpng-dev libjpeg-turbo8 libjpeg-turbo8-dev libfreetype6 libfreetype6-dev libicu-dev libxslt1-dev msmtp nano git" \
     && apt-get update && apt-get install -y $requirements && rm -rf /var/lib/apt/lists/* \
-    && docker-php-ext-install pdo_mysql \
-    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install gd \
-    && pecl install mcrypt-1.0.2 \
-    && docker-php-ext-enable mcrypt \
-    && docker-php-ext-install bcmath \
-    && docker-php-ext-install mbstring \
-    && docker-php-ext-install zip \
-    && docker-php-ext-install intl \
-    && docker-php-ext-install xsl \
-    && docker-php-ext-install soap \
-    && docker-php-ext-install opcache \
-    && docker-php-ext-install sockets \
-    && requirementsToRemove="libpng-dev libmcrypt-dev libcurl3-dev libpng12-dev libfreetype6-dev libjpeg-turbo8-dev" \
+    && docker-php-ext-configure gd \
+      --enable-gd \
+      --with-jpeg \
+      --with-freetype \
+    && docker-php-ext-install -j$(nproc) gd \
+    && docker-php-ext-install -j$(nproc) pdo_mysql \
+    && docker-php-ext-install -j$(nproc) bcmath \
+    && docker-php-ext-install -j$(nproc) mbstring \
+    && docker-php-ext-install -j$(nproc) zip \
+    && docker-php-ext-install -j$(nproc) intl \
+    && docker-php-ext-install -j$(nproc) xsl \
+    && docker-php-ext-install -j$(nproc) soap \
+    && docker-php-ext-install -j$(nproc) opcache \
+    && docker-php-ext-install -j$(nproc) sockets \
+    && docker-php-ext-install -j$(nproc) sodium \
+    && requirementsToRemove="libcurl3-dev libfreetype6-dev libpng-dev libjpeg-turbo8-dev" \
     && apt-get purge --auto-remove -y $requirementsToRemove
 
 # Install XDEBUG extension
@@ -31,23 +32,23 @@ RUN requirements="libzip-dev libpng-dev libmcrypt-dev libmcrypt4 libcurl3-dev li
 # https://xdebug.org/download.php
 # confirm => php -m | grep -i xdebug
 RUN set -x \
-    && pecl install xdebug-2.9.5 \
-    && docker-php-ext-enable xdebug
+   && pecl install xdebug \
+   && docker-php-ext-enable xdebug
 
-# Install memcache extension
+# Install memcache extension for PHP8
 #
 RUN set -x \
     && apt-get update && apt-get install -y --no-install-recommends unzip libssl-dev libpcre3 libpcre3-dev \
     && cd /tmp \
-    && curl -sSL -o php7.zip https://github.com/websupport-sk/pecl-memcache/archive/4.0.5.2.zip \
-    && unzip php7 \
-    && cd pecl-memcache-4.0.5.2 \
+    && curl -sSL -o php8.zip https://github.com/websupport-sk/pecl-memcache/archive/refs/tags/8.0-fixed.zip \
+    && unzip php8.zip \
+    && cd pecl-memcache-8.0-fixed \
     && /usr/local/bin/phpize \
     && ./configure --with-php-config=/usr/local/bin/php-config \
     && make \
     && make install \
     && echo "extension=memcache.so" > /usr/local/etc/php/conf.d/ext-memcache.ini \
-    && rm -rf /tmp/pecl-memcache-php7 php7.zip
+    && rm -rf /tmp/pecl-memcache-8.0-fixed php8.zip
 
 # get magento 2 and extract
 #
@@ -63,11 +64,10 @@ RUN set -x \
 	&& mv magento2 /var/www/dev/ \
     && mkdir /var/www/dev/magento2/composer_home
 
-# install composer
+# install composer v2.3.7
 #
 RUN set -x \
-    && curl -sS https://getcomposer.org/installer | php \
-    && mv composer.phar /usr/local/bin/composer
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=2.3.7
 
 # install magerun 2
 #
@@ -87,6 +87,14 @@ RUN set -x \
 #
 COPY ./healthcheck.php /var/www/dev/magento2/
 COPY ./auth.json /var/www/.composer/
+# Magento repo auth config
+#
+ARG MAGENTO_REPO_USERNAME
+ARG MAGENTO_REPO_PASSWORD
+RUN set -x \
+	&& sed -i "s/XUSERNAMEX/$MAGENTO_REPO_USERNAME/g" /var/www/.composer/auth.json \
+	&& sed -i "s/XPASSWORDX/$MAGENTO_REPO_PASSWORD/g" /var/www/.composer/auth.json \
+	&& cat /var/www/.composer/auth.json
 ENV COMPOSER_HOME=/var/www/.composer
 RUN set -x \
     && usermod -u 33 www-data \
@@ -97,7 +105,7 @@ RUN set -x \
 
 # composer
 RUN chsh -s /bin/bash magento \
-    && su magento -c "cd /var/www/dev/magento2 && composer install"
+    && su magento -c "cd /var/www/dev/magento2 && composer install --ignore-platform-reqs"
 
 # php RedisAdmin
 # https://github.com/erikdubbelboer/phpRedisAdmin
@@ -130,5 +138,6 @@ ENV APACHE_LOCK_DIR /var/lock/apache2
 # cleanup
 #
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+COPY ./auth.json /var/www/.composer/
 
 WORKDIR /var/www/dev/magento2

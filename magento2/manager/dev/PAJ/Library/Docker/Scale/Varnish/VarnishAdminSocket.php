@@ -88,7 +88,7 @@ class VarnishAdminSocket {
     protected $_port = 6082;
     protected $_private = null;
     protected $_authSecret = null;
-    protected $_timeout = 30; // timeout
+    protected $_timeout = 5;
     protected $_version = null; //auto-detect
 
     public function __construct(array $options = array()) {
@@ -313,9 +313,8 @@ class VarnishAdminSocket {
         stream_set_blocking($this->_varnishConn, 1);
         stream_set_timeout($this->_varnishConn, $this->_timeout);
 
-        //varnish 2.0 doesn't spit out a banner on connection, this will need
-        //to be changed if 2.0 support is ever added
         $banner = $this->_read();
+
         if ($banner['code'] === self::CODE_AUTH) {
             $challenge = substr($banner['text'], 0, 32);
             $response = hash('sha256', sprintf("%s\n%s%s\n", $challenge,
@@ -348,7 +347,7 @@ class VarnishAdminSocket {
             // Varnish before 3.0.4 does not spit out a version number
             $resp = $this->_write('help')->_read();
             if (strpos($resp['text'], 'ban.url') !== false) {
-                // Varnish versions 3.0 through 3.0.3 do not return a version banner. 
+                // Varnish versions 3.0 through 3.0.3 do not return a version banner.
                 // To differentiate between 2.1 and 3.0, we check the existence of the ban.url command.
                 return '3.0';
             }
@@ -384,9 +383,12 @@ class VarnishAdminSocket {
             $this->_connect();
         }
         $data = rtrim($data).PHP_EOL;
+
         $dataLength = strlen($data);
+
         if ($dataLength >= self::CLI_CMD_LENGTH_LIMIT) {
             $cliBufferResponse = $this->param_show('cli_buffer');
+
             $regexp = '~^cli_buffer\s+(\d+)\s+\[bytes\]~';
             if ($this->getVersion() === '4.0' || $this->getVersion() === '4.1') {
                 // Varnish4 supports "16k" style notation
@@ -407,11 +409,30 @@ class VarnishAdminSocket {
                     $dataLength - $realLimit ));
             }
         }
-        if (($byteCount = fwrite($this->_varnishConn, $data)) !== $dataLength) {
-            throw new \Exception(sprintf('Varnish socket write error: %d != %d',
-                $byteCount, $dataLength));
+
+        //if ($this->strposa($data, array('auth','vcl.inline')))
+        if (false)
+        {
+            fwrite($this->_varnishConn, str_replace('"','',$data));
+
+        } else {
+            if (($byteCount = fwrite($this->_varnishConn, $data)) !== $dataLength) {
+                throw new \Exception(sprintf('Varnish socket write error: %d != %d : %s',
+                $byteCount, $dataLength, $data));
+            }
         }
+
         return $this;
+    }
+
+    protected function strposa($haystack, $needles=array(), $offset=0) {
+            $chr = array();
+            foreach($needles as $needle) {
+                    $res = strpos($haystack, $needle, $offset);
+                    if ($res !== false) $chr[$needle] = $res;
+            }
+            if(empty($chr)) return false;
+            return min($chr);
     }
 
     /**
@@ -464,20 +485,20 @@ class VarnishAdminSocket {
         //remove $okCode (if it exists)
         array_shift($params);
         $cleanedParams = array();
-		
+
         foreach ($params as $param) {
             $cp = addcslashes($param, "\"\\");
 			$cp = trim(preg_replace('/\s\s+/', PHP_EOL, $cp));
             $cp = str_replace(PHP_EOL, '\n', $cp);
             $cleanedParams[] = sprintf('"%s"', $cp);
         }
-		
+
         $data = implode(' ', array_merge(
             array(sprintf('"%s"', $verb)),
             $cleanedParams ));
-        
+
 		$response = $this->_write($data)->_read();
-        
+
 		if ($response['code'] !== $okCode && ! is_null($okCode)) {
             throw new \Exception(sprintf(
                 "ERROR : Got unexpected response code from Varnish: %d\n%s\nCommand : %s\n",

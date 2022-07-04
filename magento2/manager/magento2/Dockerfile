@@ -1,8 +1,8 @@
-FROM gaiterjones/phusion1100-apache2-php7-4:27
+FROM gaiterjones/phusion2204-apache2-php8-1:5
 LABEL maintainer="paj@gaiterjones.com"
 LABEL service "Magento 2 MANAGER Production Service"
 
-ENV CREATION_DATE 22122021
+ENV CREATION_DATE 01072022
 
 # dependencies
 RUN requirements="libsodium-dev libonig-dev libzip-dev libpng-dev libcurl3-dev zlib1g-dev libpng-dev libjpeg-turbo8 libjpeg-turbo8-dev libfreetype6 libfreetype6-dev libicu-dev libxslt1-dev msmtp nano git" \
@@ -34,20 +34,20 @@ RUN apt-get update && apt-get -yq install \
 	pngcrush \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Install memcache extension
+# Install memcache extension for PHP8
 #
 RUN set -x \
     && apt-get update && apt-get install -y --no-install-recommends unzip libssl-dev libpcre3 libpcre3-dev \
     && cd /tmp \
-    && curl -sSL -o php7.zip https://github.com/websupport-sk/pecl-memcache/archive/4.0.5.2.zip \
-    && unzip php7 \
-    && cd pecl-memcache-4.0.5.2 \
+    && curl -sSL -o php8.zip https://github.com/websupport-sk/pecl-memcache/archive/refs/tags/8.0-fixed.zip \
+    && unzip php8.zip \
+    && cd pecl-memcache-8.0-fixed \
     && /usr/local/bin/phpize \
     && ./configure --with-php-config=/usr/local/bin/php-config \
     && make \
     && make install \
     && echo "extension=memcache.so" > /usr/local/etc/php/conf.d/ext-memcache.ini \
-    && rm -rf /tmp/pecl-memcache-php7 php7.zip
+    && rm -rf /tmp/pecl-memcache-8.0-fixed php8.zip
 
 # prepare user/s
 #
@@ -99,19 +99,20 @@ RUN a2enmod rewrite \
 # >>> DOCKER IN DOCKER
 RUN set -x \
     && cd /tmp \
+    && groupmod -g 997 runit-log \
     && curl -L -o docker-latest.tgz  https://get.docker.com/builds/Linux/x86_64/docker-latest.tgz \
     && gzip -d docker-latest.tgz \
     && tar -xvf docker-latest.tar \
     && mv /tmp/docker/docker /usr/local/bin \
     && rm -rf /tmp/docker docker-latest.tar \
-    && addgroup --gid 998 docker \
+    && addgroup --gid 999 docker \
     && usermod -aG docker www-data \
     && usermod -aG docker magento
 
 # Uncomment for Magepack
 #RUN set -x \
 #    && cd /tmp \
-#    && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+#    && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
 #    && apt-get install -y nodejs gconf-service libasound2 libatk1.0-0 libatk-bridge2.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget \
 #    && npm install -g magepack  --unsafe-perm=true --allow-root \
 #    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
