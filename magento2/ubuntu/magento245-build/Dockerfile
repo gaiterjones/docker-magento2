@@ -1,13 +1,11 @@
-FROM gaiterjones/phusion1100-apache2-php7-4:7
+FROM gaiterjones/phusion2204-apache2-php8-1:5
 LABEL maintainer="paj@gaiterjones.com"
 LABEL description="Magento 2 PHP-APACHE Service"
 
-ENV MAGENTO_VERSION 2.4.0
-# sha256sum Magento-Open-Source-2.4.0.tar.gz
-ENV MAGENTO_SHA256 7f8e13412103b8f63979fff353fefb3d6475296bd76a1f4f4407c76706f9d9a5
+ENV MAGENTO_VERSION 2.4.5
 
 # dependencies
-RUN requirements="libgnutls28-dev libonig-dev libzip-dev libpng-dev libcurl3-dev zlib1g-dev libpng-dev libjpeg-turbo8 libjpeg-turbo8-dev libfreetype6 libfreetype6-dev libicu-dev libxslt1-dev nano git" \
+RUN requirements="libsodium-dev libonig-dev libzip-dev libpng-dev libcurl3-dev zlib1g-dev libpng-dev libjpeg-turbo8 libjpeg-turbo8-dev libfreetype6 libfreetype6-dev libicu-dev libxslt1-dev msmtp nano git" \
     && apt-get update && apt-get install -y $requirements && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-configure gd \
       --enable-gd \
@@ -23,6 +21,7 @@ RUN requirements="libgnutls28-dev libonig-dev libzip-dev libpng-dev libcurl3-dev
     && docker-php-ext-install -j$(nproc) soap \
     && docker-php-ext-install -j$(nproc) opcache \
     && docker-php-ext-install -j$(nproc) sockets \
+    && docker-php-ext-install -j$(nproc) sodium \
     && requirementsToRemove="libcurl3-dev libfreetype6-dev libpng-dev libjpeg-turbo8-dev" \
     && apt-get purge --auto-remove -y $requirementsToRemove
 
@@ -31,67 +30,28 @@ RUN requirements="libgnutls28-dev libonig-dev libzip-dev libpng-dev libcurl3-dev
 # https://xdebug.org/download.php
 # confirm => php -m | grep -i xdebug
 RUN set -x \
-    && pecl install xdebug-2.9.5 \
-    && docker-php-ext-enable xdebug
+   && pecl install xdebug \
+   && docker-php-ext-enable xdebug
 
-# Install memcache extension
+# Install memcache extension for PHP8
 #
 RUN set -x \
     && apt-get update && apt-get install -y --no-install-recommends unzip libssl-dev libpcre3 libpcre3-dev \
     && cd /tmp \
-    && curl -sSL -o php7.zip https://github.com/websupport-sk/pecl-memcache/archive/4.0.5.2.zip \
-    && unzip php7 \
-    && cd pecl-memcache-4.0.5.2 \
+    && curl -sSL -o php8.zip https://github.com/websupport-sk/pecl-memcache/archive/refs/tags/8.0-fixed.zip \
+    && unzip php8.zip \
+    && cd pecl-memcache-8.0-fixed \
     && /usr/local/bin/phpize \
     && ./configure --with-php-config=/usr/local/bin/php-config \
     && make \
     && make install \
     && echo "extension=memcache.so" > /usr/local/etc/php/conf.d/ext-memcache.ini \
-    && rm -rf /tmp/pecl-memcache-php7 php7.zip
+    && rm -rf /tmp/pecl-memcache-8.0-fixed php8.zip
 
-# Install msmtp
-# CAUTION : requires libgnutls28-dev for TLS
-RUN set -x \
-    && cd /tmp \
-    && curl -sSL -o msmtp.tar https://marlam.de/msmtp/releases/msmtp-1.8.12.tar.xz \
-    && tar -xvf msmtp.tar \
-    && cd msmtp-1.8.12 \
-    && ./configure \
-    && make \
-    && make install \
-    && rm -rf /tmp/msmtp-1.8.12 msmtp.tar \
-    && touch /var/log/msmtp.log \
-    && touch /usr/local/etc/msmtprc \
-    && chmod 0644 /usr/local/etc/msmtprc \
-    && chmod 777 /var/log/msmtp.log
-
-# get magento 2 and extract
+# install composer v2.3.7
 #
 RUN set -x \
-	&& mkdir /var/www/dev \
-	&& rm -rf /var/www/html/* \
-	&& mkdir /tmp/magento2 \
-	&& cd /tmp/magento2 \
-	&& curl https://pe.terjon.es/dropbox/Magento-Open-Source-$MAGENTO_VERSION.tar.gz -o $MAGENTO_VERSION.tar.gz \
-	&& echo "$MAGENTO_SHA256 $MAGENTO_VERSION.tar.gz" | sha256sum -c - \
-	&& tar xvf $MAGENTO_VERSION.tar.gz \
-	&& cd .. \
-	&& mv magento2 /var/www/dev/ \
-    && mkdir /var/www/dev/magento2/composer_home
-
-# install composer
-#
-RUN set -x \
-    && curl -sS https://getcomposer.org/installer | php \
-    && mv composer.phar /usr/local/bin/composer
-
-# install magerun 2
-#
-RUN set -x \
-	&& cd /tmp \
-	&& curl -s -o n98-magerun2.phar https://files.magerun.net/n98-magerun2.phar \
-	&& chmod +x ./n98-magerun2.phar \
-	&& mv ./n98-magerun2.phar /usr/local/bin/
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=2.3.7
 
 # prepare Mage source
 #
@@ -101,19 +61,44 @@ RUN set -x \
 # add new file owner group 1000
 # file owner member of www-data
 #
-COPY ./healthcheck.php /var/www/dev/magento2/
+
 COPY ./auth.json /var/www/.composer/
+# Magento repo auth config
+#
+ARG MAGENTO_REPO_USERNAME
+ARG MAGENTO_REPO_PASSWORD
+RUN set -x \
+	&& sed -i "s/XUSERNAMEX/$MAGENTO_REPO_USERNAME/g" /var/www/.composer/auth.json \
+	&& sed -i "s/XPASSWORDX/$MAGENTO_REPO_PASSWORD/g" /var/www/.composer/auth.json \
+	&& cat /var/www/.composer/auth.json
 ENV COMPOSER_HOME=/var/www/.composer
 RUN set -x \
+    && mkdir /var/www/dev \
+    && rm -rf /var/www/html/* \
+    && mkdir /var/www/dev/magento2 \
     && usermod -u 33 www-data \
     && adduser --disabled-password --gecos '' magento \
     && usermod -u 1000 magento \
     && usermod -a -G www-data magento \
     && chown -R magento:www-data /var/www
 
-# composer
+# composer create new magento2 project
+#
 RUN chsh -s /bin/bash magento \
-    && su magento -c "cd /var/www/dev/magento2 && composer install"
+    && su magento -c "cd /var/www/dev/magento2 && composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=$MAGENTO_VERSION /var/www/dev/magento2 && mkdir /var/www/dev/magento2/composer_home"
+COPY ./healthcheck.php /var/www/dev/magento2/
+
+# reset permissions
+#
+RUN chown -R magento:www-data /var/www/dev/magento2/
+
+# install magerun 2
+#
+RUN set -x \
+	&& cd /tmp \
+	&& curl -s -o n98-magerun2.phar https://files.magerun.net/n98-magerun2.phar \
+	&& chmod +x ./n98-magerun2.phar \
+	&& mv ./n98-magerun2.phar /usr/local/bin/
 
 # php RedisAdmin
 # https://github.com/erikdubbelboer/phpRedisAdmin
@@ -142,11 +127,10 @@ ENV APACHE_LOG_DIR /var/log/apache2
 ENV APACHE_PID_FILE /var/run/apache2.pid
 ENV APACHE_RUN_DIR /var/run/apache2
 ENV APACHE_LOCK_DIR /var/lock/apache2
-# Ensure old PID due to previous usage killed
-RUN rm -f /var/run/apache2/apache2.pid
 
 # cleanup
 #
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+COPY ./auth.json /var/www/.composer/
 
 WORKDIR /var/www/dev/magento2
