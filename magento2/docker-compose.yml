@@ -121,7 +121,7 @@ services:
         depends_on:
             - php-apache
     varnish:
-        build: ./varnish/varnish6
+        build: ./varnish/varnish7
         hostname: varnish
         domainname: "${APPDOMAIN}"
         #expose:
@@ -136,7 +136,7 @@ services:
            - php-apache
         volumes:
           - "${CONTAINERDATA}/${PROJECT_NAME}/data:/home/data"
-          - ./varnish/varnish6.vcl:/etc/varnish/default.vcl
+          - ./varnish/varnish7.vcl:/etc/varnish/default.vcl
           - ./varnish/varnish.secret:/etc/varnish/secret
         environment:
           - CACHE_SIZE=64M
