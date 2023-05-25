@@ -12,6 +12,7 @@ services:
         hostname: manager
         domainname: "${APPDOMAIN}"
         volumes:
+            # UNCOMMENT FOR PERSISTANT WWW DATA
             #- "${CONTAINERDATA}/${PROJECT_NAME}/www:/var/www"
             - "${CONTAINERDATA}/${PROJECT_NAME}/data:/home/data"
             - "${MANAGERDEV}:/var/www/dev"
@@ -54,6 +55,7 @@ services:
         #   - "3000:3000"
         #   - "3001:3001"
         volumes:
+            # UNCOMMENT FOR PERSISTANT WWW DATA
             #- "${CONTAINERDATA}/${PROJECT_NAME}/www:/var/www"
             - "${CONTAINERDATA}/${PROJECT_NAME}/data:/home/data"
             #- "${CONTAINERDATA}/${PROJECT_NAME}/logs:/var/www/logs"
@@ -115,7 +117,7 @@ services:
             - php-apache
 
     redis_system:
-        image: redis:latest
+        image: redis:7.0.11
         networks:
             - wwwserver
         depends_on:
@@ -160,11 +162,12 @@ services:
 
     mysql:
         #image: mysql:5.7
-        image: mysql:8.0.30
+        image: mysql:8.0.33
         hostname: mysql
         domainname: "${APPDOMAIN}"
         volumes:
-            - "${CONTAINERDATA}/${PROJECT_NAME}/mysql:/var/lib/mysql"
+            # UNCOMMENT FOR PERSISTANT DB DATA
+            #- "${CONTAINERDATA}/${PROJECT_NAME}/mysql:/var/lib/mysql"
             - "${CONTAINERDATA}/${PROJECT_NAME}/data:/home/data"
         networks:
             - database

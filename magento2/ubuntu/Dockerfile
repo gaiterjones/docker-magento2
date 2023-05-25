@@ -1,4 +1,4 @@
-FROM gaiterjones/magento2:2.4.5
+FROM gaiterjones/magento2:2.4.6
 LABEL maintainer "paj@gaiterjones.com"
 LABEL service "Magento 2 PHP-APACHE Service"
 # ------------------------------------------------------------------

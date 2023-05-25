@@ -1,10 +1,10 @@
 
-# Docker Magento 2.4.X Open Source (CE) 09-2022
+# Docker Magento 2.4.X Open Source (CE) 05-2023
 
 Docker containers for Magento 2.4.x development including :
 
   - Ubuntu 22.04
-  - PHP 8.1
+  - PHP 8.2
   - Apache 2.4
   - MYSQL 8
   - Varnish 7 FPC  
@@ -21,13 +21,14 @@ Docker containers for Magento 2.4.x development including :
 2. EDIT .env - **add your Magento authentication keys**  
 3. `docker-compose build`
 4. `docker-compose up -d`   
-5. Install sample data
+5. Install sample data, note sample data will fail until php has initialised composer, allow 60 seconds after start - ignore any errors
 `docker-compose exec -u magento php-apache install-sampledata`
 
 6. Install Magento
 `docker-compose exec -u magento php-apache install-magento`
 
 7. Disable 2FA for testing
+`docker exec -i -t --user magento magento2_php-apache_1 ./bin/magento module:disable Magento_AdminAdobeImsTwoFactorAuth`
 `docker-compose exec -u magento php-apache bin/magento module:disable Magento_TwoFactorAuth`
 
 ## Test

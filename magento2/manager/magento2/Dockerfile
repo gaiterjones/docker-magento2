@@ -1,8 +1,8 @@
-FROM gaiterjones/phusion2204-apache2-php8-1:5
+FROM gaiterjones/phusion2204-apache2-php8-2:5
 LABEL maintainer="paj@gaiterjones.com"
 LABEL service "Magento 2 MANAGER Production Service"
 
-ENV CREATION_DATE 01072022
+ENV CREATION_DATE 25052023
 
 # dependencies
 RUN requirements="libsodium-dev libonig-dev libzip-dev libpng-dev libcurl3-dev zlib1g-dev libpng-dev libjpeg-turbo8 libjpeg-turbo8-dev libfreetype6 libfreetype6-dev libicu-dev libxslt1-dev msmtp nano git" \
@@ -39,15 +39,20 @@ RUN apt-get update && apt-get -yq install \
 RUN set -x \
     && apt-get update && apt-get install -y --no-install-recommends unzip libssl-dev libpcre3 libpcre3-dev \
     && cd /tmp \
-    && curl -sSL -o php8.zip https://github.com/websupport-sk/pecl-memcache/archive/refs/tags/8.0-fixed.zip \
+    && curl -sSL -o php8.zip https://github.com/websupport-sk/pecl-memcache/archive/refs/tags/8.2.zip \
     && unzip php8.zip \
-    && cd pecl-memcache-8.0-fixed \
+    && cd pecl-memcache-8.2 \
     && /usr/local/bin/phpize \
     && ./configure --with-php-config=/usr/local/bin/php-config \
     && make \
     && make install \
     && echo "extension=memcache.so" > /usr/local/etc/php/conf.d/ext-memcache.ini \
-    && rm -rf /tmp/pecl-memcache-8.0-fixed php8.zip
+    && rm -rf /tmp/pecl-memcache-8.2 php8.zip
+
+# install composer v2.5.7
+#
+RUN set -x \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=2.5.7
 
 # prepare user/s
 #
