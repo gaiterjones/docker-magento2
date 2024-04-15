@@ -1,4 +1,4 @@
-FROM php:7.4-cli-alpine
+FROM php:8.3-cli-alpine
 LABEL maintainer magento@gaiterjones.com
 # https://github.com/jetrails/docker-magento-alpine/blob/master/src/php-cli-7.4/Dockerfile
 

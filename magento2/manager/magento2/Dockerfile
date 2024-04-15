@@ -1,8 +1,8 @@
-FROM gaiterjones/phusion2204-apache2-php8-2:5
+FROM gaiterjones/phusion2204-apache2-php8-3:6
 LABEL maintainer="paj@gaiterjones.com"
 LABEL service "Magento 2 MANAGER Production Service"
 
-ENV CREATION_DATE 25052023
+ENV CREATION_DATE 15042024
 
 # dependencies
 RUN requirements="libsodium-dev libonig-dev libzip-dev libpng-dev libcurl3-dev zlib1g-dev libpng-dev libjpeg-turbo8 libjpeg-turbo8-dev libfreetype6 libfreetype6-dev libicu-dev libxslt1-dev msmtp nano git" \

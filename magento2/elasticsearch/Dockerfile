@@ -1,4 +1,4 @@
-FROM elasticsearch:7.17.4
+FROM elasticsearch:8.11.4
 LABEL maintainer="GAITERJONES"
 # Magento 2 required plugins
 # https://github.com/elastic/elasticsearch-analysis-icu

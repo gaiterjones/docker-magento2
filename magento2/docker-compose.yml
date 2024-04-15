@@ -1,10 +1,9 @@
 # MAGENTO2
-# PHUSION PHP7/APACHE REDIS MYSQL VARNISH PHPMYADMIN ELASTICSEARCH RABBITMQ
+#
+# PHUSION PHP8/APACHE REDIS MYSQL VARNISH PHPMYADMIN ELASTICSEARCH RABBITMQ
 #
 # https://github.com/gaiterjones/docker-magento2
 #
-#
-version: "3.1"
 
 services:
     manager:
@@ -72,7 +71,7 @@ services:
         env_file: .env
 
     rabbitmq:
-        hostname: rabbitmq
+        hostname: rabbitmq:3.13.1-management
         domainname: "${APPDOMAIN}"
         image: rabbitmq:management
         networks:
@@ -117,13 +116,15 @@ services:
             - php-apache
 
     redis_system:
-        image: redis:7.0.11
+        image: redis:7.2.4
         networks:
             - wwwserver
         depends_on:
             - php-apache
     varnish:
         build: ./varnish/varnish7
+        stdin_open: true
+        tty: true
         hostname: varnish
         domainname: "${APPDOMAIN}"
         #expose:
@@ -138,7 +139,7 @@ services:
            - php-apache
         volumes:
           - "${CONTAINERDATA}/${PROJECT_NAME}/data:/home/data"
-          - ./varnish/varnish7.vcl:/etc/varnish/default.vcl
+          - ./varnish/varnish7.247.vcl:/etc/varnish/default.vcl
           - ./varnish/varnish.secret:/etc/varnish/secret
         environment:
           - CACHE_SIZE=64M
@@ -161,7 +162,6 @@ services:
           - "${CONTAINERDATA}/${PROJECT_NAME}/data:/home/data"
 
     mysql:
-        #image: mysql:5.7
         image: mysql:8.0.33
         hostname: mysql
         domainname: "${APPDOMAIN}"

@@ -1,7 +1,7 @@
 <?php
 /**
  *
- *  Copyright (C) 2022 paj@gaiterjones.com
+ *  Copyright (C) 2024 paj@gaiterjones.com
  */
 
 namespace PAJ\Library\Docker\Scale\Manager;
@@ -11,6 +11,8 @@ namespace PAJ\Library\Docker\Scale\Manager;
 //
 class GetContainers
 {
+
+	private $__;
 
 	public function __construct() {
 

@@ -1,10 +1,10 @@
 
-# Docker Magento 2.4.X Open Source (CE) 05-2023
+# Docker Magento 2.4.X Open Source (CE) 04-2024
 
 Docker containers for Magento 2.4.x development including :
 
   - Ubuntu 22.04
-  - PHP 8.2
+  - PHP 8.3
   - Apache 2.4
   - MYSQL 8
   - Varnish 7 FPC  
@@ -43,6 +43,12 @@ http://magento2.dev.com
     `docker-compose exec -u magento php-apache bash`
 
 to fix layout issues with demo data : `docker-compose exec -u magento php-apache cp /var/www/dev/magento2/vendor/magento/module-cms-sample-data/fixtures/styles.css /var/www/dev/magento2/pub/media/`
+
+Enable VARNISH FPC in admin Stores-> Configuration -> Advanced -> Full Page Cache
+
+hostname - vanish
+port 80
+
 ### More
 
 https://blog.gaiterjones.com/docker-magento-2-development-deployment-php7-apache2-4-redis-varnish-scaleable/ for further deployment instructions.
