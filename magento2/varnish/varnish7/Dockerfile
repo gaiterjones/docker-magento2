@@ -1,8 +1,10 @@
-FROM varnish:7.4.3
+FROM varnish:7.5.0
 # https://hub.docker.com/_/varnish
 LABEL maintainer="paj@gaiterjones.com"
 LABEL service="varnish"
-LABEL version="7.4.3"
+LABEL version="7.5.0"
+
+user root
 
 ARG ENV_TYPE
 ENV ENV_TYPE ${ENV_TYPE:-development}
@@ -38,7 +40,7 @@ ENV VARNISH_CONTAINER_LOG_TYPE ${VARNISH_LOG_TYPE:-"varnishncsa"}
 WORKDIR /etc/varnish
 
 EXPOSE 80
-COPY ./start.sh /usr/bin/varnishstart.sh
-USER root
-RUN chmod +x /usr/bin/varnishstart.sh
-ENTRYPOINT "/usr/bin/varnishstart.sh"
+#ENTRYPOINT ["docker-varnish-entrypoint"]
+COPY ./start.sh /usr/bin/varnish-start.sh
+RUN chmod +x /usr/bin/varnish-start.sh
+ENTRYPOINT "/usr/bin/varnish-start.sh"

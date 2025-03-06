@@ -1,9 +1,9 @@
 
-# Docker Magento 2.4.X Open Source (CE) 04-2024
+# Docker Magento 2.4.X Open Source (CE) 03-2025
 
 Docker containers for Magento 2.4.x development including :
 
-  - Ubuntu 22.04
+  - Ubuntu 24.04
   - PHP 8.3
   - Apache 2.4
   - MYSQL 8
@@ -11,7 +11,7 @@ Docker containers for Magento 2.4.x development including :
   - RabbitMQ 3.x
   - PhpMyAdmin
   - memcached
-  - ELASTIC search 7.x
+  - OPEN search 2.x
   - REDIS Session, System, FPC
   - Scaleable php-apache service
 
@@ -29,7 +29,7 @@ Docker containers for Magento 2.4.x development including :
 
 7. Disable 2FA for testing
 `docker exec -i -t --user magento magento2_php-apache_1 ./bin/magento module:disable Magento_AdminAdobeImsTwoFactorAuth`
-`docker-compose exec -u magento php-apache bin/magento module:disable Magento_TwoFactorAuth`
+`docker-compose exec -u magento magento2_php-apache_1 bin/magento module:disable Magento_TwoFactorAuth`
 
 ## Test
 

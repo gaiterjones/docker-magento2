@@ -1,8 +1,8 @@
-FROM gaiterjones/phusion2204-apache2-php8-3:6
+FROM gaiterjones/phusion2404-apache2-php8-3:16
 LABEL maintainer="paj@gaiterjones.com"
 LABEL description="Magento 2 PHP-APACHE Service"
 
-ENV MAGENTO_VERSION 2.4.7
+ENV MAGENTO_VERSION 2.4.7p4
 
 # dependencies
 RUN requirements="libsodium-dev libonig-dev libzip-dev libpng-dev libcurl3-dev zlib1g-dev libpng-dev libjpeg-turbo8 libjpeg-turbo8-dev libfreetype6 libfreetype6-dev libicu-dev libxslt1-dev msmtp nano git" \
@@ -76,6 +76,7 @@ RUN set -x \
     && mkdir /var/www/dev \
     && rm -rf /var/www/html/* \
     && mkdir /var/www/dev/magento2 \
+    && deluser --remove-home ubuntu \
     && usermod -u 33 www-data \
     && adduser --disabled-password --gecos '' magento \
     && usermod -u 1000 magento \

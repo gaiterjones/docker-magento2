@@ -123,8 +123,6 @@ services:
             - php-apache
     varnish:
         build: ./varnish/varnish7
-        stdin_open: true
-        tty: true
         hostname: varnish
         domainname: "${APPDOMAIN}"
         #expose:
@@ -143,13 +141,24 @@ services:
           - ./varnish/varnish.secret:/etc/varnish/secret
         environment:
           - CACHE_SIZE=64M
-          - VARNISH_LOGGING_ENABLED=true
+          - VARNISH_LOGGING_ENABLED=false
 
-    elasticsearch:
-        build: ./elasticsearch
+    opensearch:
+        build: ./opensearch
         environment:
-          - discovery.type=single-node
-          - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+            - discovery.type=single-node
+            - bootstrap.memory_lock=true
+            - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+            - "DISABLE_SECURITY_PLUGIN=true"
+            - "DISABLE_INSTALL_DEMO_CONFIG=true"
+            - "OPENSEARCH_INITIAL_ADMIN_PASSWORD=admin"
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+            nofile:
+                soft: 65536
+                hard: 65536
         networks:
            - wwwserver
            #- proxy_server
@@ -158,11 +167,11 @@ services:
         depends_on:
            - php-apache
         volumes:
-          #- "${CONTAINERDATA}/${PROJECT_NAME}/elasticsearch/data1:/usr/share/elasticsearch/data"
+          #- "${CONTAINERDATA}/${PROJECT_NAME}/opensearch/data1:/usr/share/opensearch/data"
           - "${CONTAINERDATA}/${PROJECT_NAME}/data:/home/data"
 
     mysql:
-        image: mysql:8.0.33
+        image: mysql:8.0.41
         hostname: mysql
         domainname: "${APPDOMAIN}"
         volumes:
