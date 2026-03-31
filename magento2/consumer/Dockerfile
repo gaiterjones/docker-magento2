@@ -1,5 +1,5 @@
 # Stage 1: Build PHP extensions and dependencies
-FROM php:8.3-cli-alpine AS builder
+FROM php:8.4-cli-alpine AS builder
 
 # Install build dependencies
 RUN apk --update --no-cache add \
@@ -26,10 +26,11 @@ RUN docker-php-ext-configure gd --with-jpeg=/usr/include/ --with-freetype=/usr/i
         soap \
         sockets \
         xsl \
-        zip
+        zip \
+        ftp
 
 # Stage 2: Create the final image with minimal footprint
-FROM php:8.3-cli-alpine
+FROM php:8.4-cli-alpine
 LABEL maintainer paj@gaiterjones.com
 
 # Copy compiled extensions from builder stage

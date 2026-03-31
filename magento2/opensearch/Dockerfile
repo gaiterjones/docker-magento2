@@ -1,4 +1,4 @@
-FROM opensearchproject/opensearch:2.12.0
+FROM opensearchproject/opensearch:3
 LABEL maintainer="GAITERJONES"
 
 # Install required plugins

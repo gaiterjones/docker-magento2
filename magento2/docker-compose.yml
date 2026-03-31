@@ -71,7 +71,7 @@ services:
         env_file: .env
 
     rabbitmq:
-        hostname: rabbitmq:3.13.1-management
+        hostname: rabbitmq:3.13.7-management
         domainname: "${APPDOMAIN}"
         image: rabbitmq:management
         networks:
@@ -171,7 +171,10 @@ services:
           - "${CONTAINERDATA}/${PROJECT_NAME}/data:/home/data"
 
     mysql:
-        image: mysql:8.0.41
+        image: mysql:8.4.8
+        command:
+            - mysqld
+            - --log-bin-trust-function-creators=1        
         hostname: mysql
         domainname: "${APPDOMAIN}"
         volumes:

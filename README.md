@@ -1,14 +1,14 @@
 
-# Docker Magento 2.4.X Open Source (CE) 03-2025
+# Docker Magento 2.4.X Open Source (CE) 04-2026
 
 Docker containers for Magento 2.4.x development including :
 
   - Ubuntu 24.04
-  - PHP 8.3
+  - PHP 8.4
   - Apache 2.4
-  - MYSQL 8
+  - MYSQL 8.4
   - Varnish 7 FPC  
-  - RabbitMQ 3.x
+  - RabbitMQ 4.x
   - PhpMyAdmin
   - memcached
   - OPEN search 2.x

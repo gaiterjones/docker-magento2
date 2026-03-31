@@ -1,11 +1,11 @@
-FROM gaiterjones/phusion2404-apache2-php8-3:16 AS base
+FROM gaiterjones/phusion2404-apache2-php8-4:19 AS base
 LABEL maintainer="paj@gaiterjones.com"
 LABEL service="Magento 2 MANAGER Production Service"
 
 # Use build arguments for customization
 ARG SMTP
 ARG APPDOMAIN
-ENV CREATION_DATE=01032025
+ENV CREATION_DATE=01042026
 
 # Consolidate dependencies and reduce layers
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -116,18 +116,19 @@ RUN set -eux; \
 RUN set -eux; \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=2.5.7
 
-# Docker CLI Installation
-RUN set -eux; \
-    cd /tmp; \
-    curl -L -o docker-latest.tgz https://get.docker.com/builds/Linux/x86_64/docker-latest.tgz; \
-    gzip -d docker-latest.tgz; \
-    tar -xvf docker-latest.tar; \
-    mv /tmp/docker/docker /usr/local/bin; \
-    rm -rf /tmp/docker docker-latest.tar; \
-    groupmod -g 994 systemd-journal; \
-    addgroup --gid 999 docker; \
-    usermod -aG docker www-data; \
-    usermod -aG docker magento
+# >>> DOCKER IN DOCKER
+#     getent group docker
+# Should show: docker:x:988:www-data
+RUN set -x \
+    && cd /tmp \
+    # Choose a specific version from https://download.docker.com/linux/static/stable/
+    && DOCKER_VERSION="29.1.3" \
+    && curl -L -o docker.tgz "https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz" \
+    && tar -xzvf docker.tgz \
+    && mv /tmp/docker/docker /usr/local/bin/ \
+    && rm -rf /tmp/docker docker.tgz \
+    && addgroup --gid 988 docker \
+    && usermod -aG docker magento
 
 # Copy Configuration Files
 COPY ./php/php.ini /usr/local/etc/php/conf.d/php.ini
