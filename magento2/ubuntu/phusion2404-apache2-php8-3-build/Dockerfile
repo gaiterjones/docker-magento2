@@ -1,5 +1,5 @@
-FROM phusion/baseimage:noble-1.0.0
-# https://github.com/phusion/baseimage-docker/releases/tag/noble-1.0.0
+FROM phusion/baseimage:noble-1.0.2
+# https://github.com/phusion/baseimage-docker/releases/tag/noble-1.0.2
 # NICE AND NOBLE SER
 # UBUNTU 24.04
 
@@ -45,9 +45,9 @@ COPY apache2.conf /etc/apache2/apache2.conf
 ENV GPG_KEYS 1198C0117593497A5EC5C199286AF1F9897469DC AFD8691FDAEDF03BDF6E460563F15A9B715376CA C28D937575603EB4ABB725861C0779DC5C0A9DE4
 
 # http://php.net/releases/
-ENV PHP_VERSION 8.3.16
-ENV PHP_FILENAME php-8.3.16.tar.xz
-ENV PHP_SHA256 40d3b4e6cac33d3bcefe096d75a28d4fb4e3a9615eb20a4de55ba139fbfacdd5
+ENV PHP_VERSION 8.3.36
+ENV PHP_FILENAME php-8.3.36.tar.xz
+ENV PHP_SHA256 dd54693aa334c5c4d72e9aee96b082c2473750a18a6c1d105789c93a3b1692fd
 
 RUN set -xe \
 	&& buildDeps=" \
@@ -63,9 +63,9 @@ RUN set -xe \
 	&& apt-get update && apt-get install -y $buildDeps --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 RUN set -xe \
-	&& curl -fSL "http://php.net/get/$PHP_FILENAME/from/this/mirror" -o "$PHP_FILENAME" \
+	&& curl -fSL "https://www.php.net/distributions/$PHP_FILENAME" -o "$PHP_FILENAME" \
 	&& echo "$PHP_SHA256 *$PHP_FILENAME" | sha256sum -c - \
-	&& curl -fSL "http://php.net/get/$PHP_FILENAME.asc/from/this/mirror" -o "$PHP_FILENAME.asc" \
+	&& curl -fSL "https://www.php.net/distributions/$PHP_FILENAME.asc" -o "$PHP_FILENAME.asc" \
 	&& export GNUPGHOME="$(mktemp -d)" \
 	&& for key in $GPG_KEYS; do \
 		gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys "$key"; \
